@@ -129,6 +129,12 @@ class Triangle {
 
         // Update heading from private method
         heading = getAngle();
+    }
+
+    /**
+     * Draws a Triangle to the screen
+     */
+    void draw() {
 
         // Set color and drawing properties
         float hue = (PApplet.degrees(heading) + 360) % 360;
@@ -137,12 +143,6 @@ class Triangle {
         tri.setStroke(parent.color(0));
         parent.stroke(parent.color(0));
         tri.setStrokeWeight(STROKE_WEIGHT);
-    }
-
-    /**
-     * Draws a Triangle to the screen
-     */
-    void draw() {
 
         // Move origin to our location and rotate so up is our heading
         parent.translate(x, y);

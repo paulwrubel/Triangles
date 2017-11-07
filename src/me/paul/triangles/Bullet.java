@@ -20,13 +20,13 @@ class Bullet {
      * Also defaults for Saturation and Brightness values
      */
     private static final boolean FILL = true;
+    private static final boolean STROKE = true;
     private static final float STROKE_WEIGHT = 2;
     private static final float RADIUS = 8;
 
     private static final float MAG = 10;
     private static final float GRAVITY = 1;
 
-    private static final float SAT = 60;
     private static final float BRIGHT = 85;
 
     /**
@@ -45,6 +45,7 @@ class Bullet {
     private float dy;
     private float ddx;
     private float ddy;
+    private float velocity;
     private float heading;
 
     /**
@@ -107,6 +108,8 @@ class Bullet {
 
         heading = getAngleFromVelocity(dx, dy);
 
+        velocity = PApplet.sqrt(((dx*dx) + (dy*dy))*((dx*dx) + (dy*dy)));
+
         //  Update location based on heading
 
         x += dx;
@@ -148,22 +151,31 @@ class Bullet {
             }
         }
 
-        // Decide of color for Bullet, or if hollow
-        if (FILL) {
-            float hue = (PApplet.degrees(heading) + 360) % 360;
-            parent.fill(parent.color(hue, SAT, BRIGHT));
-        } else {
-            parent.noFill();
-        }
+
     }
 
     /**
      * Draws this Bullet object to the screen
      */
     void draw() {
+        // Decide of color for Bullet, or if hollow
+        if (FILL) {
+            float hue = (PApplet.degrees(heading) + 360) % 360;
+            float sat = PApplet.map(velocity, 0, 1000, 50, 100);
+            parent.fill(parent.color(hue, sat, BRIGHT));
+        } else {
+            parent.noFill();
+        }
+
+        if (STROKE) {
+            parent.strokeWeight(STROKE_WEIGHT);
+            parent.stroke(parent.color(0));
+        } else {
+            parent.noStroke();
+        }
+
         //  Set basic drawing properties
-        parent.strokeWeight(STROKE_WEIGHT);
-        parent.stroke(parent.color(0));
+
 
         //  No need for rotation as we are simple drawing a circle
         parent.ellipse(x, y, RADIUS, RADIUS);

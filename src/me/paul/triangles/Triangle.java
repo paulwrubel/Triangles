@@ -168,6 +168,10 @@ class Triangle {
         bullets.add(new Bullet(parent, xPos, yPos, heading, parent.getBounceMode()));
     }
 
+    void clearBullets() {
+        bullets.clear();
+    }
+
     /**
      * Getter method for the bullet list of this Triangle
      * @return This Triangles bullet list

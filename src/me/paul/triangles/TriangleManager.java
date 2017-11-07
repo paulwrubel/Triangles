@@ -113,6 +113,7 @@ public class TriangleManager extends PApplet {
 
     /** References to all on-screen Triangles */
     private ArrayList<Triangle> triangles;
+    private int bulletCount;
 
     /** Arrays to save state of all key and mouse presses concurrently
      *  (currently not supported by processing, unfortunately)
@@ -128,12 +129,16 @@ public class TriangleManager extends PApplet {
      */
     public void settings() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
+        smooth(8);
     }
 
     /**
      *  Called once, for initialization purposes. Nothing is drawn here
      */
     public void setup() {
+
+        hint(DISABLE_DEPTH_TEST);
+        hint(ENABLE_STROKE_PERSPECTIVE);
 
         //  Initial values
         dynamic = false;
@@ -147,6 +152,7 @@ public class TriangleManager extends PApplet {
         prevHeight = height;
 
         triangles = new ArrayList<>();
+        bulletCount = 0;
         mouseButtons = new boolean[40];
         keys = new boolean[128];
         keyCodes = new boolean[41];
@@ -158,6 +164,7 @@ public class TriangleManager extends PApplet {
         //  Can resize window (alpha)
         surface.setResizable(true);
 
+
         //  Hue, Saturation, Brightness, and ranges
         colorMode(HSB, 360, 100, 100);
         //  Ellipses are drawn from centre and distances are radii
@@ -166,7 +173,6 @@ public class TriangleManager extends PApplet {
         background(color(0));
         //  To avoid rendering artifacts from 3D mode
         //  Essentially tells renderer to just ignore z-dimension
-        hint(DISABLE_DEPTH_TEST);
     }
 
     /**
@@ -184,11 +190,8 @@ public class TriangleManager extends PApplet {
             cameraZ += ((height - prevHeight)/2f) / tan(PI*30.0f / 180.0f);
         }
 
-
         //  Fix camera
         camera(cameraX, cameraY, cameraZ, width/2.0f, height/2.0f, 0f, 0f, 1.0f, 0f);
-
-
 
         //  Set window title based on current mode
         if (dynamic) {
@@ -230,7 +233,7 @@ public class TriangleManager extends PApplet {
         long start;
         long end;
 
-        int bulletCount = 0;
+        bulletCount = 0;
 
         //  Iterate over Triangle List
         for (Triangle t : triangles) {
@@ -323,7 +326,24 @@ public class TriangleManager extends PApplet {
         text(FPSText, 50, 170);
         text("Bounce: " + bounce, 50, 190);
         text("Decay: " + decay, 50, 210);
-        String mode = gravityMode == 0 ? "OFF" : gravityMode == 1 ? "MOUSE" : "POINT";
+        String mode;
+        switch (gravityMode){
+            case 0:
+                mode = "OFF";
+                break;
+            case 1:
+                mode = "MOUSE";
+                break;
+            case 2:
+                mode = "POINT";
+                break;
+            case 3:
+                mode = "MULTI-POINT";
+                break;
+            default:
+                mode = "ERROR";
+                break;
+        }
         text("Gravity Mode: " + mode, 50, 230);
 
         prevWidth = width;
@@ -453,7 +473,12 @@ public class TriangleManager extends PApplet {
             bounce = !bounce;
         }
         if (k == 'g') {
-            gravityMode = (gravityMode + 1) % 3;
+            gravityMode = (gravityMode + 1) % 4;
+        }
+        if (k == 'c') {
+            for (Triangle t : triangles) {
+                t.clearBullets();
+            }
         }
         if (!dynamic) {
             if (k == 'i') {
@@ -524,7 +549,9 @@ public class TriangleManager extends PApplet {
         if (!dynamic) {
             if (mb == LEFT) {
                 for (Triangle t : triangles) {
-                    t.addBullet();
+                    if (bulletCount < BULLET_LIMIT) {
+                        t.addBullet();
+                    }
                 }
             }
             if (mb == RIGHT) {

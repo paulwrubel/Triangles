@@ -27,7 +27,7 @@ class Triangle {
      * And Magnitude of movement with arrow keys
      */
     private static final float STROKE_WEIGHT = 5;
-    private static final float MAG = 5;
+    private static final float MAG = 4;
 
     /**
      * A reference to a Triangles Object
@@ -118,7 +118,7 @@ class Triangle {
 
         //  Add off-screen bullets to the remove copy list
         for (Bullet b : bullets) {
-            if (b.getX() < 0 || b.getX() > parent.width || b.getY() < 0 || b.getY() > parent.height) {
+            if (b.getDeleteStatus()) {
                 bulletsToRemove.add(b);
             }
         }
@@ -165,7 +165,7 @@ class Triangle {
         float yPos = y - (40 * PApplet.cos(heading));
 
         //  Add to list
-        bullets.add(new Bullet(parent, xPos, yPos, heading));
+        bullets.add(new Bullet(parent, xPos, yPos, heading, parent.getBounceMode()));
     }
 
     /**

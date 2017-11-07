@@ -84,9 +84,9 @@ public class Triangles extends PApplet {
      *  Lower values are faster
      *  Ranges from 1 - INF
      */
-    private static final int TRIANGLE_ADD_FREQ = 3;
-    private static final int TRIANGLE_REMOVE_FREQ= 3;
-    private static final int BULLET_FREQ = 3;
+    private static final int TRIANGLE_ADD_FREQ = 4;
+    private static final int TRIANGLE_REMOVE_FREQ= 4;
+    private static final int BULLET_FREQ = 4;
 
     /**  Controls mode of program
      *  Dynamic mode:
@@ -97,6 +97,7 @@ public class Triangles extends PApplet {
      *      Perspective movement jumps to preset values and is block-like
      */
     private boolean dynamic;
+    private boolean bounce;
 
     /** Saves camera state for changing perspective */
     private float cameraX;
@@ -177,10 +178,10 @@ public class Triangles extends PApplet {
         //  To keep track of original perspective
         stroke(color(0));
         strokeWeight(BORDER_WEIGHT);
-        line(0, 0, width, 0);
-        line(0, 0, 0, height);
-        line(0, height, width, height);
-        line(width, 0, width, height);
+        line(0, 0 + BORDER_WEIGHT/2, width, 0 + BORDER_WEIGHT/2);
+        line(0 + BORDER_WEIGHT/2, 0, 0 + BORDER_WEIGHT/2, height);
+        line(0, height - BORDER_WEIGHT/2, width, height - BORDER_WEIGHT/2);
+        line(width - BORDER_WEIGHT/2, 0, width - BORDER_WEIGHT/2, height);
 
         //  Draw crosshairs
         stroke(color(0, 100, 100));
@@ -285,6 +286,7 @@ public class Triangles extends PApplet {
         text(triangleText, 50, 130);
         text(bulletText, 50, 150);
         text(FPSText, 50, 170);
+        text("Bounce: " + bounce, 50, 190);
 
     }
 
@@ -306,6 +308,22 @@ public class Triangles extends PApplet {
             //  If brand-new, just add one!
             triangles.add(new Triangle(this, mouseX, mouseY));
         }
+    }
+
+    float getGravityX() {
+        return mouseX;
+    }
+
+    float getGravityY() {
+        return mouseY;
+    }
+
+    boolean getBounceMode() {
+        return bounce;
+    }
+
+    float getBorderWeight() {
+        return BORDER_WEIGHT;
     }
 
     /**
@@ -373,6 +391,9 @@ public class Triangles extends PApplet {
         }
         if (k == ' ') {
             triangles.clear();
+        }
+        if (k == 'b') {
+            bounce = !bounce;
         }
         if (!dynamic) {
             if (k == 'i') {
@@ -467,5 +488,4 @@ public class Triangles extends PApplet {
     public static void main(String _args[]) {
         PApplet.main(new String[]{me.paul.triangles.Triangles.class.getName()});
     }
-
 }

@@ -33,7 +33,7 @@ class Bullet {
     /**
      * Reference to a Triangles object to draw to
      */
-    private Triangles parent;
+    private TriangleManager parent;
     private boolean markedForDelete;
     private boolean bounce = true;
 
@@ -56,7 +56,7 @@ class Bullet {
      * @param heading_ heading (in radians) of this Bullet
      */
 
-    Bullet(Triangles parent_, float x_, float y_, float heading_, boolean bounce_) {
+    Bullet(TriangleManager parent_, float x_, float y_, float heading_, boolean bounce_) {
         parent = parent_;
         x = x_;
         y = y_;

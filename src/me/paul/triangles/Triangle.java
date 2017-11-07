@@ -33,7 +33,7 @@ class Triangle {
      * A reference to a Triangles Object
      * Needed to draw to the buffer from PApplet
      */
-    private Triangles parent;
+    private TriangleManager parent;
 
     /**
      * Location and heading of triangles on window
@@ -60,7 +60,7 @@ class Triangle {
      * @param y_ y coordinate location of this triangle
      */
 
-    Triangle(Triangles parent_, float x_, float y_) {
+    Triangle(TriangleManager parent_, float x_, float y_) {
 
         parent = parent_;
 

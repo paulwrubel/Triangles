@@ -51,7 +51,7 @@ import java.util.ArrayList;
  *
  */
 
-public class Triangles extends PApplet {
+public class TriangleManager extends PApplet {
 
     /**
      *  Controls default window size
@@ -486,6 +486,6 @@ public class Triangles extends PApplet {
      */
 
     public static void main(String _args[]) {
-        PApplet.main(new String[]{me.paul.triangles.Triangles.class.getName()});
+        PApplet.main(new String[]{me.paul.triangles.TriangleManager.class.getName()});
     }
 }

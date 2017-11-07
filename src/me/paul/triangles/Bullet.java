@@ -25,7 +25,6 @@ class Bullet {
 
     private static final float MAG = 10;
     private static final float GRAVITY = 1;
-    private static final float DECAY = 0.99f;
 
     private static final float SAT = 60;
     private static final float BRIGHT = 85;
@@ -65,6 +64,9 @@ class Bullet {
         dx = MAG * (PApplet.sin(heading));
         dy = -MAG * (PApplet.cos(heading));
 
+        ddx = 0;
+        ddy = 0;
+
         markedForDelete = false;
         bounce = bounce_;
     }
@@ -81,19 +83,20 @@ class Bullet {
 
         bounce = parent.getBounceMode();
 
-        float gravX = parent.getGravityX();
-        float gravY = parent.getGravityY();
+        if (parent.getGravityMode() != 0) {
+            float gravX = parent.getGravityX();
+            float gravY = parent.getGravityY();
 
-        float gravAngle = getAngleFromPoint(gravX, gravY);
+            float gravAngle = getAngleFromPoint(gravX, gravY);
 
-        ddx = GRAVITY * (PApplet.sin(gravAngle));
-        ddy = -GRAVITY * (PApplet.cos(gravAngle));
-
+            ddx = GRAVITY * (PApplet.sin(gravAngle));
+            ddy = -GRAVITY * (PApplet.cos(gravAngle));
+        }
         dx += ddx;
         dy += ddy;
 
-        dx *= DECAY;
-        dy *= DECAY;
+        dx *= parent.getDecay();
+        dy *= parent.getDecay();
 
         heading = getAngleFromVelocity(dx, dy);
 
@@ -158,14 +161,6 @@ class Bullet {
         //  No need for rotation as we are simple drawing a circle
         parent.ellipse(x, y, RADIUS, RADIUS);
 
-    }
-
-    private boolean outOfRangeX() {
-        return (x < parent.getBorderWeight() + RADIUS || x > parent.width - parent.getBorderWeight() - RADIUS);
-    }
-
-    private boolean outOfRangeY() {
-        return (y < parent.getBorderWeight() + RADIUS || y > parent.height - parent.getBorderWeight() - RADIUS);
     }
 
     private float getAngleFromVelocity(float dx, float dy) {

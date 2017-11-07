@@ -98,6 +98,13 @@ public class TriangleManager extends PApplet {
      */
     private boolean dynamic;
     private boolean bounce;
+    private int gravityMode;
+    private float gravPointX;
+    private float gravPointY;
+    private float decay;
+
+    private int prevWidth;
+    private int prevHeight;
 
     /** Saves camera state for changing perspective */
     private float cameraX;
@@ -130,6 +137,15 @@ public class TriangleManager extends PApplet {
 
         //  Initial values
         dynamic = false;
+        bounce = false;
+        gravityMode = 0;
+        decay = 1;
+        gravPointX = width / 2;
+        gravPointY = height / 2;
+
+        prevWidth = width;
+        prevHeight = height;
+
         triangles = new ArrayList<>();
         mouseButtons = new boolean[40];
         keys = new boolean[128];
@@ -160,8 +176,17 @@ public class TriangleManager extends PApplet {
 
     public void draw() {
 
+        if (prevWidth != width) {
+            cameraX += (width - prevWidth)/2f;
+        }
+        if (prevHeight != height) {
+            cameraY += (height - prevHeight)/2f;
+        }
+
         //  Fix camera
         camera(cameraX, cameraY, cameraZ, width/2.0f, height/2.0f, 0f, 0f, 1.0f, 0f);
+
+
 
         //  Set window title based on current mode
         if (dynamic) {
@@ -182,6 +207,14 @@ public class TriangleManager extends PApplet {
         line(0 + BORDER_WEIGHT/2, 0, 0 + BORDER_WEIGHT/2, height);
         line(0, height - BORDER_WEIGHT/2, width, height - BORDER_WEIGHT/2);
         line(width - BORDER_WEIGHT/2, 0, width - BORDER_WEIGHT/2, height);
+
+        if (gravityMode == 2) {
+            //  Draw Gravity Point
+            stroke(color(0));
+            strokeWeight(2);
+            fill(color(0, 0, 100));
+            ellipse(gravPointX, gravPointY, 4, 4);
+        }
 
         //  Draw crosshairs
         stroke(color(0, 100, 100));
@@ -233,7 +266,7 @@ public class TriangleManager extends PApplet {
                 handleAdd();
             }
             //  Remove Triangles
-            if (mouseButtons[CENTER] && (frameCount % TRIANGLE_REMOVE_FREQ) == 0) {
+            if (keys[(int)BACKSPACE] && (frameCount % TRIANGLE_REMOVE_FREQ) == 0) {
                 if (triangles.size() != 0) {
                     triangles.remove(0);
                 }
@@ -287,7 +320,12 @@ public class TriangleManager extends PApplet {
         text(bulletText, 50, 150);
         text(FPSText, 50, 170);
         text("Bounce: " + bounce, 50, 190);
+        text("Decay: " + decay, 50, 210);
+        String mode = gravityMode == 0 ? "OFF" : gravityMode == 1 ? "MOUSE" : "POINT";
+        text("Gravity Mode: " + mode, 50, 230);
 
+        prevWidth = width;
+        prevHeight = height;
     }
 
     /**
@@ -311,11 +349,23 @@ public class TriangleManager extends PApplet {
     }
 
     float getGravityX() {
-        return mouseX;
+        if (gravityMode == 1) {
+            return mouseX;
+        } else {
+            return gravPointX;
+        }
     }
 
     float getGravityY() {
-        return mouseY;
+        if (gravityMode == 1) {
+            return mouseY;
+        } else {
+            return gravPointY;
+        }
+    }
+
+    int getGravityMode() {
+        return gravityMode;
     }
 
     boolean getBounceMode() {
@@ -324,6 +374,10 @@ public class TriangleManager extends PApplet {
 
     float getBorderWeight() {
         return BORDER_WEIGHT;
+    }
+
+    float getDecay() {
+        return decay;
     }
 
     /**
@@ -369,6 +423,7 @@ public class TriangleManager extends PApplet {
             keyCodes[kc] = true;
         }
 
+
         // Handle key data
         if (kc == ENTER) {
             dynamic = !dynamic;
@@ -395,6 +450,9 @@ public class TriangleManager extends PApplet {
         if (k == 'b') {
             bounce = !bounce;
         }
+        if (k == 'g') {
+            gravityMode = (gravityMode + 1) % 3;
+        }
         if (!dynamic) {
             if (k == 'i') {
                 // UP
@@ -419,6 +477,11 @@ public class TriangleManager extends PApplet {
             if (k == 'o') {
                 // IN
                 cameraZ -= (height / 2.0) / tan(PI * 30.0f / 180.0f);
+            }
+            if (k == BACKSPACE) {
+                if (triangles.size() != 0) {
+                    triangles.remove(0);
+                }
             }
         }
     }
@@ -450,6 +513,11 @@ public class TriangleManager extends PApplet {
         //  Set array position to true
         mouseButtons[mb] = true;
 
+        if (mb == CENTER) {
+            gravPointX = mouseX;
+            gravPointY = mouseY;
+        }
+
         //  Handle mouse button actions
         if (!dynamic) {
             if (mb == LEFT) {
@@ -459,11 +527,6 @@ public class TriangleManager extends PApplet {
             }
             if (mb == RIGHT) {
                 handleAdd();
-            }
-            if (mb == CENTER) {
-                if (triangles.size() != 0) {
-                    triangles.remove(0);
-                }
             }
         }
     }

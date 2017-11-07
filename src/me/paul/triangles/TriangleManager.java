@@ -139,7 +139,7 @@ public class TriangleManager extends PApplet {
         dynamic = false;
         bounce = false;
         gravityMode = 0;
-        decay = 1;
+        decay = 0.99f;
         gravPointX = width / 2;
         gravPointY = height / 2;
 
@@ -181,7 +181,9 @@ public class TriangleManager extends PApplet {
         }
         if (prevHeight != height) {
             cameraY += (height - prevHeight)/2f;
+            cameraZ += ((height - prevHeight)/2f) / tan(PI*30.0f / 180.0f);
         }
+
 
         //  Fix camera
         camera(cameraX, cameraY, cameraZ, width/2.0f, height/2.0f, 0f, 0f, 1.0f, 0f);

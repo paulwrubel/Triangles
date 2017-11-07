@@ -91,12 +91,19 @@ class Bullet {
 
             ddx = GRAVITY * (PApplet.sin(gravAngle));
             ddy = -GRAVITY * (PApplet.cos(gravAngle));
+        } else {
+
+            ddx = 0;
+            ddy = 0;
         }
+
         dx += ddx;
         dy += ddy;
 
-        dx *= parent.getDecay();
-        dy *= parent.getDecay();
+        if (parent.getGravityMode() != 0) {
+            dx *= parent.getDecay();
+            dy *= parent.getDecay();
+        }
 
         heading = getAngleFromVelocity(dx, dy);
 

@@ -1,15 +1,14 @@
 # Triangles
 ---
----
 A fun processing project about triangles that shoot bullets
 
+Supported by [processing](https://processing.org/) libraries.
 
 @version 1.0
+
 @author [Paul Wrubel (VoxaelFox)](https://github.com/paulwrubel)
 
-Creates Triangles on a PApplet window supported by processing libraries.
-
-##### Features:
+##### Features
 - Triangles aim at mouse
 - Triangles can move toward, away from, and orbit the mouse
 - Trianges can shoot bullets.
@@ -19,7 +18,6 @@ Creates Triangles on a PApplet window supported by processing libraries.
 - Perspective Movement! (Alpha)
 
 #### Controls
----
 | Key              | Control       | Note
 |:----------------:|:------------- |:----
 | *Right Click*    | Create Triangle at cursor | Can be held in Dynamic mode
@@ -43,7 +41,6 @@ Creates Triangles on a PApplet window supported by processing libraries.
 | *g*              | Toggles gravity mode | See Gravity Mode Section
 
 #### Gravity Modes
----
 | Gravity Mode | Description
 |:------------:|:-------------
 | OFF          | No acceleration / Linear motion

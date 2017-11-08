@@ -218,6 +218,7 @@ class Bullet {
 
     }
 
+    // TODO: Redo with PVector class
     private float getAngleFromVelocity(float dx, float dy) {
 
         // Which quadrant is the cursor in relative to us?
@@ -247,6 +248,7 @@ class Bullet {
         return PApplet.radians(trueRotation);
     }
 
+    // TODO: Redo with PVector class
     private float getAngleFromPoint(PVector v) {
         // get distances from location to cursor
         float dx = PApplet.abs(v.x - pos.x);
@@ -279,6 +281,7 @@ class Bullet {
         return PApplet.radians(trueRotation);
     }
 
+    // TODO: Redo with PVector class
     private float getDistFromPoint(PVector v) {
         float dx = PApplet.abs(v.x - pos.x);
         float dy = PApplet.abs(v.y - pos.y);

@@ -79,6 +79,7 @@ class Triangle {
      * Getter method for x coordinate
      * @return x coordinate location of this triangle
      */
+    // TODO: Redo with PVector class
     float getX() {
         return x;
     }
@@ -87,6 +88,7 @@ class Triangle {
      * Getter method for y coordinate
      * @return y coordinate location of this triangle
      */
+    // TODO: Redo with PVector class
     float getY() {
         return y;
     }
@@ -184,6 +186,7 @@ class Triangle {
      * relative to the cursor position
      * @return This Triangle's most recent heading
      */
+    // TODO: Redo with PVector class
     private float getAngle() {
         // get distances from location to cursor
         double dx = PApplet.abs(manager.mouseX - x);

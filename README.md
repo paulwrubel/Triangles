@@ -1,44 +1,53 @@
 # Triangles
-A fun processing project about triangles that shoot things
+---
+---
+A fun processing project about triangles that shoot bullets
 
-@version 1.0                                                                      
-@author Paul Wrubel - VoxaelFox                                                   
-                                                                                  
-Creates Triangles on a PApplet window supported by processing libraries.          
-                                                                                  
-Features include:                                                                 
-    Triangles aim at mouse                                                        
-    Triangles can move toward, away from, and orbit the mouse                     
-    Trianges can shoot bullets.                                                   
-    Color is based on mouse position (Background) and heading (Triangles/Bullets) 
-    Perspective Movement! (Alpha)                                                 
-                                                                                  
-Controls:                                                                         
-    RIGHT CLICK:    Create Triangle at cursor                                     
-                        (can be held in dynamic mode)                             
-    LEFT CLICK:     Shoot Bullet from all Triangles on screen at cursor           
-                        (can be held in dynamic mode)                             
-    CENTRE CLICK:   Remove oldest Triangle                                        
-                        (can be held in dynamic mode)                             
-                                                                                  
-    UP ARROW:       Move all Triangles towards cursor (can be held)               
-    DOWN ARROW:     Move all Triangles away from cursor (can be held)             
-    LEFT ARROW:     All Triangles orbit cursor anti-clockwise (can be held)       
-    RIGHT ARROW:    All Triangles orbit cursor clockwise (can be held)            
-                                                                                  
-    i:              Change perspective up                                         
-                        (can be held in dynamic mode / blocky in static mode)     
-    k:              Change perspective down                                       
-                        (can be held in dynamic mode / blocky in static mode)     
-    j:              Change perspective left                                       
-                        (can be held in dynamic mode / blocky in static mode)     
-    l:              Change perspective right                                      
-                        (can be held in dynamic mode / blocky in static mode)     
-    u:              Change perspective out                                        
-                        (can be held in dynamic mode / blocky in static mode)     
-    o:              Change perspective in                                         
-                        (can be held in dynamic mode / blocky in static mode)     
-                                                                                  
-    SPACE:          Clears all triangles and bullets from screen                  
-                                                                                  
-    ENTER:          Toggles dynamic / static mode                                 
+
+@version 1.0
+@author [Paul Wrubel (VoxaelFox)](https://github.com/paulwrubel)
+
+Creates Triangles on a PApplet window supported by processing libraries.
+
+##### Features:
+- Triangles aim at mouse
+- Triangles can move toward, away from, and orbit the mouse
+- Trianges can shoot bullets.
+- Bullets can be attracted to points gravitationally
+- Dynamic Gravity Modes
+- Color is based on mouse position (Background) and heading (Triangles/Bullets) 
+- Perspective Movement! (Alpha)
+
+#### Controls
+---
+| Key              | Control       | Note
+|:----------------:|:------------- |:----
+| *Right Click*    | Create Triangle at cursor | Can be held in Dynamic mode
+| *Left Click*     | Shoot Bullet from all Triangles on screen at cursor| Can be held in Dynamic mode
+| *Center Click*   | Set gravity point | Valid in all gravity modes
+| *Up Arrow*       | Move all Triangles towards cursor | Can be held
+| *Down Arrow*     | Move all Triangles away from cursor | Can be held
+| *Left Arrow*     | All Triangles orbit cursor anti-clockwise | Can be held
+| *Right Arrow*    | All Triangles orbit cursor clockwise | Can be held
+| *i*              | Change perspective up | Can be held in Dynamic mode / blocky in Static mode
+| *k*              | Change perspective down | Can be held in Dynamic mode / blocky in Static mode
+| *j*              | Change perspective left | Can be held in Dynamic mode / blocky in Static mode
+| *l*              | Change perspective right | Can be held in Dynamic mode / blocky in Static mode
+| *u*              | Change perspective out | Can be held in Dynamic mode / blocky in Static mode
+| *o*              | Change perspective in | Can be held in Dynamic mode / blocky in Static mode
+| *r*              | Resets the perspective | Any mode
+| *Space*          | Clears all Triangles and Bullets from the window | Any mode
+| *c*              | Clears all Bullets from the window | Any mode
+| *Enter / Return* | Toggles Dynamic / Static mode | Any mode
+| *b*              | Toggles bounce mode | Allows Bullets to bounce off the sides of the window
+| *g*              | Toggles gravity mode | See Gravity Mode Section
+
+#### Gravity Modes
+---
+| Gravity Mode | Description
+|:------------:|:-------------
+| OFF          | No acceleration / Linear motion
+| SIMPLE       | Constant gravity acceleration towards mouse cursor
+| TRUE         | Gravity acceleration toward cursor changes with distance (emulates real life gravity)
+| POINT        | True gravity towards a specified point on screen (defaults to center)
+| MULTI-POINT  | True gravity towards multiple points on screen (defaults to one point in center)                          

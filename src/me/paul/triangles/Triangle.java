@@ -1,16 +1,17 @@
 package me.paul.triangles;
 
 import processing.core.*;
+
 import java.util.ArrayList;
 
 /**
- *  @version 1.0
- *  @author Paul Wrubel - VoxaelFox
- *
- *  Holds a reference to a Triangle Object.
- *  This is what is drawn on the window.
- *
- *  Also holds the list of bullets that belongs to this Triangle
+ * @author Paul Wrubel - VoxaelFox
+ * <p>
+ * Holds a reference to a Triangle Object.
+ * This is what is drawn on the window.
+ * <p>
+ * Also holds the list of bullets that belongs to this Triangle
+ * @version 1.0
  */
 
 class Triangle {
@@ -55,9 +56,10 @@ class Triangle {
 
     /**
      * Constructor for a Triangle object
+     *
      * @param manager_ Triangles reference needed to draw to the screen
-     * @param x_ x coordinate location of this triangle
-     * @param y_ y coordinate location of this triangle
+     * @param x_       x coordinate location of this triangle
+     * @param y_       y coordinate location of this triangle
      */
 
     Triangle(TriangleManager manager_, float x_, float y_) {
@@ -77,6 +79,7 @@ class Triangle {
 
     /**
      * Getter method for x coordinate
+     *
      * @return x coordinate location of this triangle
      */
     // TODO: Redo with PVector class
@@ -86,6 +89,7 @@ class Triangle {
 
     /**
      * Getter method for y coordinate
+     *
      * @return y coordinate location of this triangle
      */
     // TODO: Redo with PVector class
@@ -175,6 +179,7 @@ class Triangle {
 
     /**
      * Getter method for the bullet list of this Triangle
+     *
      * @return This Triangles bullet list
      */
     ArrayList<Bullet> bullets() {
@@ -184,6 +189,7 @@ class Triangle {
     /**
      * Calculates this Triangles heading based on its location
      * relative to the cursor position
+     *
      * @return This Triangle's most recent heading
      */
     // TODO: Redo with PVector class
@@ -201,13 +207,13 @@ class Triangle {
         if (manager.mouseX == x && manager.mouseY == y) {
             rot = 0;
         } else if (top && !left) {
-            rot = PApplet.atan((float)(dx / dy));
+            rot = PApplet.atan((float) (dx / dy));
         } else if (!top && left) {
-            rot = PApplet.atan((float)(dx / dy)) + manager.PI;
+            rot = PApplet.atan((float) (dx / dy)) + manager.PI;
         } else if (top) {
-            rot = PApplet.atan((float)(dy / dx)) - manager.PI / 2;
+            rot = PApplet.atan((float) (dy / dx)) - manager.PI / 2;
         } else {
-            rot = PApplet.atan((float)(dy / dx)) + manager.PI / 2;
+            rot = PApplet.atan((float) (dy / dx)) + manager.PI / 2;
         }
 
         return rot;

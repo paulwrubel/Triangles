@@ -2,11 +2,9 @@ package me.paul.triangles;
 
 import processing.core.PApplet;
 import processing.core.PVector;
-import processing.awt.PSurfaceAWT.SmoothCanvas;
-import processing.event.*;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -57,47 +55,51 @@ import java.util.ArrayList;
 public class TriangleManager extends PApplet {
 
     /**
-     *  Controls default window size
-     *  Ranges from 0 - screen width / height
+     * Controls default window size
+     * Ranges from 0 - screen width / height
      */
     private static final int WINDOW_WIDTH = 1600;
     private static final int WINDOW_HEIGHT = 800;
 
     /**
-     *  Controls Saturation and Brightness values of screen background
-     *  Ranges from 0 - 100
+     * Controls Saturation and Brightness values of screen background
+     * Ranges from 0 - 100
      */
     private static final float SAT = 20;
     private static final float BRIGHT = 100;
 
-    /** Stroke weight for the window border and crosshairs
-     *  Ranges from 0 - INF
+    /**
+     * Stroke weight for the window border and crosshairs
+     * Ranges from 0 - INF
      */
     private static final float BORDER_WEIGHT = 12;
     private static final float CROSSHAIRS_WEIGHT = 5;
 
-    /** Limit of the amount of Triangles and Bullets in the window
+    /**
+     * Limit of the amount of Triangles and Bullets in the window
      * Ranges from 0 - INF
      */
     private static final int TRIANGLE_LIMIT = 500;
     private static final int BULLET_LIMIT = 10000;
 
-    /** Frequency of the creation (and removal) of Triangles and Bullets in dynamic mode
-     *  1 writes every frame, 5 every 5 frames, and so on.
-     *  Lower values are faster
-     *  Ranges from 1 - INF
+    /**
+     * Frequency of the creation (and removal) of Triangles and Bullets in dynamic mode
+     * 1 writes every frame, 5 every 5 frames, and so on.
+     * Lower values are faster
+     * Ranges from 1 - INF
      */
     private static final int TRIANGLE_ADD_FREQ = 4;
-    private static final int TRIANGLE_REMOVE_FREQ= 4;
+    private static final int TRIANGLE_REMOVE_FREQ = 4;
     private static final int BULLET_FREQ = 4;
 
-    /**  Controls mode of program
-     *  Dynamic mode:
-     *      Continuous creation and removal of Triangles and Bullets
-     *      Smooth and constant movement of window when changing perspective
-     *  Static mode:
-     *      Every creation requires a mouse click or key press
-     *      Perspective movement jumps to preset values and is block-like
+    /**
+     * Controls mode of program
+     * Dynamic mode:
+     * Continuous creation and removal of Triangles and Bullets
+     * Smooth and constant movement of window when changing perspective
+     * Static mode:
+     * Every creation requires a mouse click or key press
+     * Perspective movement jumps to preset values and is block-like
      */
     private boolean dynamic;
     private boolean bounce;
@@ -110,26 +112,31 @@ public class TriangleManager extends PApplet {
     private int prevWidth;
     private int prevHeight;
 
-    /** Saves camera state for changing perspective */
+    /**
+     * Saves camera state for changing perspective
+     */
     private float cameraX;
     private float cameraY;
     private float cameraZ;
 
-    /** References to all on-screen Triangles */
+    /**
+     * References to all on-screen Triangles
+     */
     private ArrayList<Triangle> triangles;
     private int bulletCount;
 
-    /** Arrays to save state of all key and mouse presses concurrently
-     *  (currently not supported by processing, unfortunately)
+    /**
+     * Arrays to save state of all key and mouse presses concurrently
+     * (currently not supported by processing, unfortunately)
      */
     private boolean[] mouseButtons;
     private boolean[] keys;
     private boolean[] keyCodes;
 
     /**
-     *  Called once, only to set window size and render method
-     *  P3D is used to utilize OpenGL's graphics card integration
-     *  Otherwise there is big lag!
+     * Called once, only to set window size and render method
+     * P3D is used to utilize OpenGL's graphics card integration
+     * Otherwise there is big lag!
      */
     public void settings() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
@@ -137,7 +144,7 @@ public class TriangleManager extends PApplet {
     }
 
     /**
-     *  Called once, for initialization purposes. Nothing is drawn here
+     * Called once, for initialization purposes. Nothing is drawn here
      */
     public void setup() {
 
@@ -156,16 +163,16 @@ public class TriangleManager extends PApplet {
 
         controls = new ControlsBox(this);
         gravList = new ArrayList<>();
-        gravList.add(new PVector(width/2, height/2));
+        gravList.add(new PVector(width / 2, height / 2));
         triangles = new ArrayList<>();
         bulletCount = 0;
         mouseButtons = new boolean[40];
         keys = new boolean[128];
         keyCodes = new boolean[41];
 
-        cameraX = width/2.0f;
-        cameraY = height/2.0f;
-        cameraZ = (height/2.0f) / tan(PI*30.0f / 180.0f);
+        cameraX = width / 2.0f;
+        cameraY = height / 2.0f;
+        cameraZ = (height / 2.0f) / tan(PI * 30.0f / 180.0f);
 
         //  Can resize window (alpha)
         surface.setResizable(true);
@@ -181,8 +188,8 @@ public class TriangleManager extends PApplet {
     }
 
     /**
-     *  Called once every frame.
-     *  All drawing to window buffer occurs here, either directly or indirectly (from supporting classes called)
+     * Called once every frame.
+     * All drawing to window buffer occurs here, either directly or indirectly (from supporting classes called)
      */
 
     public void draw() {
@@ -359,8 +366,8 @@ public class TriangleManager extends PApplet {
     }
 
     /**
-     *  Handles adding of Triangles to screen
-     *  Will erase oldest if over TRIANGLE_LIMIT already on screen
+     * Handles adding of Triangles to screen
+     * Will erase oldest if over TRIANGLE_LIMIT already on screen
      */
     private void handleAdd() {
         if (triangles.size() != 0) {
@@ -408,6 +415,7 @@ public class TriangleManager extends PApplet {
 
     /**
      * Getter method for keyCodes
+     *
      * @return the keyCodes array
      */
 
@@ -417,6 +425,7 @@ public class TriangleManager extends PApplet {
 
     /**
      * Is called when a key is pressed down.
+     *
      * @param event event linked to which key was pressed
      */
 
@@ -505,6 +514,7 @@ public class TriangleManager extends PApplet {
 
     /**
      * Is called once when a key is released
+     *
      * @param event event holding data about the released key
      */
     public void keyReleased(KeyEvent event) {
@@ -521,6 +531,7 @@ public class TriangleManager extends PApplet {
 
     /**
      * Is called once when a mouse button is pressed
+     *
      * @param event event containing mouse button info
      */
 
@@ -560,6 +571,7 @@ public class TriangleManager extends PApplet {
 
     /**
      * Is called once when a mouse button is released
+     *
      * @param event event containing data about the mouse button released
      */
 
@@ -571,7 +583,8 @@ public class TriangleManager extends PApplet {
     }
 
     /**
-     * backup method for PApplet to gain execution
+     * Backup method for PApplet to gain execution
+     *
      * @param _args arguments to main
      */
 

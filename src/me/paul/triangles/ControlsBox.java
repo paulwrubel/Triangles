@@ -12,6 +12,7 @@ class ControlsBox {
     private PVector topLeft;
     private PVector bottomRight;
     private PVector center;
+
     ControlsBox(TriangleManager manager_) {
         manager = manager_;
 
@@ -39,6 +40,6 @@ class ControlsBox {
         manager.fill(0);
         manager.textMode(manager.SHAPE);
         manager.textAlign(manager.CENTER, manager.TOP);
-        manager.text("CONTROLS \nHERE", manager.width/2, manager.height/2);
+        manager.text("CONTROLS \nHERE", manager.width / 2, manager.height / 2);
     }
 }

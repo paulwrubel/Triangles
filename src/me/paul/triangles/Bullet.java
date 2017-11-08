@@ -1,15 +1,16 @@
 package me.paul.triangles;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PVector;
 
 import java.util.ArrayList;
 
 /**
- *  @version 1.0
- *  @author Paul Wrubel - VoxaelFox
- *
- *  Holds a reference to a Bullet Object.
- *  This is what is drawn on the window.
+ * @author Paul Wrubel - VoxaelFox
+ * <p>
+ * Holds a reference to a Bullet Object.
+ * This is what is drawn on the window.
+ * @version 1.0
  */
 
 class Bullet {
@@ -18,7 +19,7 @@ class Bullet {
      * Defaults for drawing properties
      * such as if the bullet is filled with color or hollow, and
      * stroke weight, radius, and magnitude of movement
-     *
+     * <p>
      * Also defaults for Saturation and Brightness values
      */
     private static final boolean FILL = true;
@@ -51,8 +52,9 @@ class Bullet {
 
     /**
      * Constructor for a Bullet object
+     *
      * @param manager_ Reference to a PApplet class to draw to
-     * @param pos_ PVector describing position of this Bullet
+     * @param pos_     PVector describing position of this Bullet
      * @param heading_ heading (in radians) of this Bullet
      */
 
@@ -99,7 +101,7 @@ class Bullet {
 
             ddx = gravity * (PApplet.sin(gravAngle));
             ddy = -gravity * (PApplet.cos(gravAngle));
-        } else if (gm == Gravity.MULTI_POINT){
+        } else if (gm == Gravity.MULTI_POINT) {
             ArrayList<PVector> gravForces = new ArrayList<>();
 
             for (PVector v : manager.getGravityList()) {
@@ -143,7 +145,7 @@ class Bullet {
 
         heading = getAngleFromVelocity(dx, dy);
 
-        velocity = PApplet.sqrt(((dx*dx) + (dy*dy))*((dx*dx) + (dy*dy)));
+        velocity = PApplet.sqrt(((dx * dx) + (dy * dy)) * ((dx * dx) + (dy * dy)));
 
         //  Update location based on heading
 
@@ -161,7 +163,7 @@ class Bullet {
             if (pos.y < 0 + RADIUS + manager.getBorderWeight()) {
                 dy *= -1;
                 pos.y = 0 + RADIUS + manager.getBorderWeight();
-            } else if(pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
+            } else if (pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
                 dy *= -1;
                 pos.y = manager.height - RADIUS - manager.getBorderWeight();
             }
@@ -179,7 +181,7 @@ class Bullet {
                 dy *= -1;
                 pos.y = 0 + RADIUS + manager.getBorderWeight();
                 markedForDelete = true;
-            } else if(pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
+            } else if (pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
                 dy *= -1;
                 pos.y = manager.height - RADIUS - manager.getBorderWeight();
                 markedForDelete = true;
@@ -286,7 +288,7 @@ class Bullet {
         float dx = PApplet.abs(v.x - pos.x);
         float dy = PApplet.abs(v.y - pos.y);
 
-        float result = dx*dx + dy*dy;
+        float result = dx * dx + dy * dy;
 
         return PApplet.sqrt(result);
     }

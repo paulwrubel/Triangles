@@ -6,6 +6,7 @@
       <root url="jar:///opt/processing-3.3.6/core/library/gluegen-rt.jar!/" />
       <root url="jar:///opt/processing-3.3.6/core/library/jogl-all-natives-linux-amd64.jar!/" />
       <root url="jar:///opt/processing-3.3.6/core/library/jogl-all.jar!/" />
+      <root url="jar:///opt/processing-3.3.6/core/library/sound.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

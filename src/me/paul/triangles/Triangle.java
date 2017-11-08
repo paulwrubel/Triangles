@@ -33,7 +33,7 @@ class Triangle {
      * A reference to a Triangles Object
      * Needed to draw to the buffer from PApplet
      */
-    private TriangleManager parent;
+    private TriangleManager manager;
 
     /**
      * Location and heading of triangles on window
@@ -55,14 +55,14 @@ class Triangle {
 
     /**
      * Constructor for a Triangle object
-     * @param parent_ Triangles reference needed to draw to the screen
+     * @param manager_ Triangles reference needed to draw to the screen
      * @param x_ x coordinate location of this triangle
      * @param y_ y coordinate location of this triangle
      */
 
-    Triangle(TriangleManager parent_, float x_, float y_) {
+    Triangle(TriangleManager manager_, float x_, float y_) {
 
-        parent = parent_;
+        manager = manager_;
 
         x = x_;
         y = y_;
@@ -72,7 +72,7 @@ class Triangle {
         bulletsToRemove = new ArrayList<>();
 
         // Create framework for triangle geometry
-        tri = parent.createShape(PConstants.TRIANGLE, 0, -45, -30f, 36f, 30f, 36f);
+        tri = manager.createShape(PConstants.TRIANGLE, 0, -45, -30f, 36f, 30f, 36f);
     }
 
     /**
@@ -99,19 +99,19 @@ class Triangle {
 
         //  Perform trigonometric operation to get new location from heading
         //  Applicable if keys are pressed
-        if (parent.getKeyCodes()[parent.UP]) {
+        if (manager.getKeyCodes()[manager.UP]) {
             x += MAG * PApplet.sin(heading);
             y += -MAG * PApplet.cos(heading);
         }
-        if (parent.getKeyCodes()[parent.DOWN]) {
+        if (manager.getKeyCodes()[manager.DOWN]) {
             x += -MAG * PApplet.sin(heading);
             y += MAG * PApplet.cos(heading);
         }
-        if (parent.getKeyCodes()[parent.LEFT]) {
+        if (manager.getKeyCodes()[manager.LEFT]) {
             x += MAG * PApplet.cos(heading);
             y += MAG * PApplet.sin(heading);
         }
-        if (parent.getKeyCodes()[parent.RIGHT]) {
+        if (manager.getKeyCodes()[manager.RIGHT]) {
             x += -MAG * PApplet.cos(heading);
             y += -MAG * PApplet.sin(heading);
         }
@@ -138,22 +138,22 @@ class Triangle {
 
         // Set color and drawing properties
         float hue = (PApplet.degrees(heading) + 360) % 360;
-        tri.setFill(parent.color(hue, SAT, BRIGHT));
-        parent.fill(parent.color(hue, SAT, BRIGHT));
-        tri.setStroke(parent.color(0));
-        parent.stroke(parent.color(0));
+        tri.setFill(manager.color(hue, SAT, BRIGHT));
+        manager.fill(manager.color(hue, SAT, BRIGHT));
+        tri.setStroke(manager.color(0));
+        manager.stroke(manager.color(0));
         tri.setStrokeWeight(STROKE_WEIGHT);
 
         // Move origin to our location and rotate so up is our heading
-        parent.translate(x, y);
-        parent.rotate(heading);
+        manager.translate(x, y);
+        manager.rotate(heading);
 
         // Draw our preset geometry to screen
-        parent.shape(tri);
+        manager.shape(tri);
 
         // Un-rotate and move origin back to reset
-        parent.rotate(-heading);
-        parent.translate(-x, -y);
+        manager.rotate(-heading);
+        manager.translate(-x, -y);
     }
 
     /**
@@ -161,11 +161,10 @@ class Triangle {
      */
     void addBullet() {
         //  Calculate starting locations
-        float xPos = x + (40 * PApplet.sin(heading));
-        float yPos = y - (40 * PApplet.cos(heading));
+        PVector pos = new PVector(x + (40 * PApplet.sin(heading)), y - (40 * PApplet.cos(heading)));
 
         //  Add to list
-        bullets.add(new Bullet(parent, xPos, yPos, heading, parent.getBounceMode()));
+        bullets.add(new Bullet(manager, pos, heading, manager.getBounceMode()));
     }
 
     void clearBullets() {
@@ -187,25 +186,25 @@ class Triangle {
      */
     private float getAngle() {
         // get distances from location to cursor
-        double dx = PApplet.abs(parent.mouseX - x);
-        double dy = PApplet.abs(parent.mouseY - y);
+        double dx = PApplet.abs(manager.mouseX - x);
+        double dy = PApplet.abs(manager.mouseY - y);
 
         // Which quadrant is the cursor in relative to us?
-        boolean left = parent.mouseX < x;
-        boolean top = parent.mouseY < y;
+        boolean left = manager.mouseX < x;
+        boolean top = manager.mouseY < y;
 
         // Choose which atan formula to use based on quadrant
         float rot;
-        if (parent.mouseX == x && parent.mouseY == y) {
+        if (manager.mouseX == x && manager.mouseY == y) {
             rot = 0;
         } else if (top && !left) {
             rot = PApplet.atan((float)(dx / dy));
         } else if (!top && left) {
-            rot = PApplet.atan((float)(dx / dy)) + parent.PI;
+            rot = PApplet.atan((float)(dx / dy)) + manager.PI;
         } else if (top) {
-            rot = PApplet.atan((float)(dy / dx)) - parent.PI / 2;
+            rot = PApplet.atan((float)(dy / dx)) - manager.PI / 2;
         } else {
-            rot = PApplet.atan((float)(dy / dx)) + parent.PI / 2;
+            rot = PApplet.atan((float)(dy / dx)) + manager.PI / 2;
         }
 
         return rot;

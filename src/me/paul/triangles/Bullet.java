@@ -2,6 +2,8 @@ package me.paul.triangles;
 
 import processing.core.*;
 
+import java.util.ArrayList;
+
 /**
  *  @version 1.0
  *  @author Paul Wrubel - VoxaelFox
@@ -25,22 +27,21 @@ class Bullet {
     private static final float RADIUS = 8;
 
     private static final float MAG = 10;
-    private static final float GRAVITY = 1;
 
     private static final float BRIGHT = 85;
 
     /**
      * Reference to a Triangles object to draw to
      */
-    private TriangleManager parent;
+    private TriangleManager manager;
     private boolean markedForDelete;
-    private boolean bounce = true;
+    private boolean bounce;
+    private float gravity;
 
     /**
      * Location and heading of this Bullet
      */
-    private float x;
-    private float y;
+    private PVector pos;
     private float dx;
     private float dy;
     private float ddx;
@@ -50,16 +51,14 @@ class Bullet {
 
     /**
      * Constructor for a Bullet object
-     * @param parent_ Reference to a PApplet class to draw to
-     * @param x_ x coordinate location of this Bullet
-     * @param y_ y coordinate location of this Bullet
+     * @param manager_ Reference to a PApplet class to draw to
+     * @param pos_ PVector describing position of this Bullet
      * @param heading_ heading (in radians) of this Bullet
      */
 
-    Bullet(TriangleManager parent_, float x_, float y_, float heading_, boolean bounce_) {
-        parent = parent_;
-        x = x_;
-        y = y_;
+    Bullet(TriangleManager manager_, PVector pos_, float heading_, boolean bounce_) {
+        manager = manager_;
+        pos = pos_;
         heading = heading_;
 
         dx = MAG * (PApplet.sin(heading));
@@ -70,6 +69,8 @@ class Bullet {
 
         markedForDelete = false;
         bounce = bounce_;
+
+        gravity = getDistFromPoint(pos);
     }
 
     boolean getDeleteStatus() {
@@ -82,28 +83,62 @@ class Bullet {
      */
     void update() {
 
-        bounce = parent.getBounceMode();
+        bounce = manager.getBounceMode();
+        Gravity gm = manager.getGravityMode();
 
-        if (parent.getGravityMode() != 0) {
-            float gravX = parent.getGravityX();
-            float gravY = parent.getGravityY();
-
-            float gravAngle = getAngleFromPoint(gravX, gravY);
-
-            ddx = GRAVITY * (PApplet.sin(gravAngle));
-            ddy = -GRAVITY * (PApplet.cos(gravAngle));
-        } else {
+        if (gm == Gravity.OFF) {
 
             ddx = 0;
             ddy = 0;
+
+        } else if (gm == Gravity.SIMPLE) {
+            PVector gravityPoint = manager.getGravityPoint();
+
+            gravity = 1;
+            float gravAngle = getAngleFromPoint(gravityPoint);
+
+            ddx = gravity * (PApplet.sin(gravAngle));
+            ddy = -gravity * (PApplet.cos(gravAngle));
+        } else if (gm == Gravity.MULTI_POINT){
+            ArrayList<PVector> gravForces = new ArrayList<>();
+
+            for (PVector v : manager.getGravityList()) {
+                float gravAngle = getAngleFromPoint(v);
+                float gravDist = getDistFromPoint(v);
+                if (getDistFromPoint(v) > 100) {
+                    gravity = 10000 / PApplet.sq(gravDist);
+                } else {
+                    gravity = 1;
+                }
+                gravForces.add(new PVector(gravity * (PApplet.sin(gravAngle)), -gravity * (PApplet.cos(gravAngle))));
+            }
+            PVector finalForce = new PVector(0, 0);
+            for (PVector v : gravForces) {
+                finalForce = finalForce.add(v);
+            }
+
+            ddx = finalForce.x;
+            ddy = finalForce.y;
+        } else {
+            PVector gravityPoint = manager.getGravityPoint();
+
+            if (getDistFromPoint(gravityPoint) > 100) {
+                gravity = 10000 / PApplet.sq(getDistFromPoint(gravityPoint));
+            } else {
+                gravity = 1;
+            }
+            float gravAngle = getAngleFromPoint(gravityPoint);
+
+            ddx = gravity * (PApplet.sin(gravAngle));
+            ddy = -gravity * (PApplet.cos(gravAngle));
         }
 
         dx += ddx;
         dy += ddy;
 
-        if (parent.getGravityMode() != 0) {
-            dx *= parent.getDecay();
-            dy *= parent.getDecay();
+        if (manager.getGravityMode() != Gravity.OFF) {
+            dx *= manager.getDecay();
+            dy *= manager.getDecay();
         }
 
         heading = getAngleFromVelocity(dx, dy);
@@ -112,41 +147,41 @@ class Bullet {
 
         //  Update location based on heading
 
-        x += dx;
-        y += dy;
+        pos.x += dx;
+        pos.y += dy;
 
         if (bounce) {
-            if (x < 0 + RADIUS + parent.getBorderWeight()) {
+            if (pos.x < 0 + RADIUS + manager.getBorderWeight()) {
                 dx *= -1;
-                x = 0 + RADIUS + parent.getBorderWeight();
-            } else if (x > parent.width - RADIUS - parent.getBorderWeight()) {
+                pos.x = 0 + RADIUS + manager.getBorderWeight();
+            } else if (pos.x > manager.width - RADIUS - manager.getBorderWeight()) {
                 dx *= -1;
-                x = parent.width - RADIUS - parent.getBorderWeight();
+                pos.x = manager.width - RADIUS - manager.getBorderWeight();
             }
-            if (y < 0 + RADIUS + parent.getBorderWeight()) {
+            if (pos.y < 0 + RADIUS + manager.getBorderWeight()) {
                 dy *= -1;
-                y = 0 + RADIUS + parent.getBorderWeight();
-            } else if(y > parent.height - RADIUS - parent.getBorderWeight()) {
+                pos.y = 0 + RADIUS + manager.getBorderWeight();
+            } else if(pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
                 dy *= -1;
-                y = parent.height - RADIUS - parent.getBorderWeight();
+                pos.y = manager.height - RADIUS - manager.getBorderWeight();
             }
         } else {
-            if (x < 0 + RADIUS + parent.getBorderWeight()) {
+            if (pos.x < 0 + RADIUS + manager.getBorderWeight()) {
                 dx *= -1;
-                x = 0 + RADIUS + parent.getBorderWeight();
+                pos.x = 0 + RADIUS + manager.getBorderWeight();
                 markedForDelete = true;
-            } else if (x > parent.width - RADIUS - parent.getBorderWeight()) {
+            } else if (pos.x > manager.width - RADIUS - manager.getBorderWeight()) {
                 dx *= -1;
-                x = parent.width - RADIUS - parent.getBorderWeight();
+                pos.x = manager.width - RADIUS - manager.getBorderWeight();
                 markedForDelete = true;
             }
-            if (y < 0 + RADIUS + parent.getBorderWeight()) {
+            if (pos.y < 0 + RADIUS + manager.getBorderWeight()) {
                 dy *= -1;
-                y = 0 + RADIUS + parent.getBorderWeight();
+                pos.y = 0 + RADIUS + manager.getBorderWeight();
                 markedForDelete = true;
-            } else if(y > parent.height - RADIUS - parent.getBorderWeight()) {
+            } else if(pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
                 dy *= -1;
-                y = parent.height - RADIUS - parent.getBorderWeight();
+                pos.y = manager.height - RADIUS - manager.getBorderWeight();
                 markedForDelete = true;
             }
         }
@@ -161,24 +196,25 @@ class Bullet {
         // Decide of color for Bullet, or if hollow
         if (FILL) {
             float hue = (PApplet.degrees(heading) + 360) % 360;
-            float sat = PApplet.map(velocity, 0, 1000, 50, 100);
-            parent.fill(parent.color(hue, sat, BRIGHT));
+            float sat = PApplet.map(velocity, 0, 100, 10, 10000);
+            sat = PApplet.sqrt(sat);
+            manager.fill(manager.color(hue, sat, BRIGHT));
         } else {
-            parent.noFill();
+            manager.noFill();
         }
 
         if (STROKE) {
-            parent.strokeWeight(STROKE_WEIGHT);
-            parent.stroke(parent.color(0));
+            manager.strokeWeight(STROKE_WEIGHT);
+            manager.stroke(manager.color(0));
         } else {
-            parent.noStroke();
+            manager.noStroke();
         }
 
         //  Set basic drawing properties
 
 
         //  No need for rotation as we are simple drawing a circle
-        parent.ellipse(x, y, RADIUS, RADIUS);
+        manager.ellipse(pos.x, pos.y, RADIUS, RADIUS);
 
     }
 
@@ -211,14 +247,14 @@ class Bullet {
         return PApplet.radians(trueRotation);
     }
 
-    private float getAngleFromPoint(float xLoc, float yLoc) {
+    private float getAngleFromPoint(PVector v) {
         // get distances from location to cursor
-        float dx = PApplet.abs(xLoc - x);
-        float dy = PApplet.abs(yLoc - y);
+        float dx = PApplet.abs(v.x - pos.x);
+        float dy = PApplet.abs(v.y - pos.y);
 
         // Which quadrant is the cursor in relative to us?
-        boolean left = xLoc < x;
-        boolean top = yLoc < y;
+        boolean left = v.x < pos.x;
+        boolean top = v.y < pos.y;
 
         // Choose which atan formula to use based on quadrant
         float rot = PApplet.degrees(PApplet.atan((dx / dy)));
@@ -241,6 +277,15 @@ class Bullet {
         }
 
         return PApplet.radians(trueRotation);
+    }
+
+    private float getDistFromPoint(PVector v) {
+        float dx = PApplet.abs(v.x - pos.x);
+        float dy = PApplet.abs(v.y - pos.y);
+
+        float result = dx*dx + dy*dy;
+
+        return PApplet.sqrt(result);
     }
 
 }

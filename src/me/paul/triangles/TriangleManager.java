@@ -1,8 +1,9 @@
 package me.paul.triangles;
 
 import processing.core.PApplet;
-import processing.event.KeyEvent;
-import processing.event.MouseEvent;
+import processing.core.PVector;
+import processing.event.*;
+import processing.sound.*;
 
 import java.util.ArrayList;
 
@@ -98,9 +99,8 @@ public class TriangleManager extends PApplet {
      */
     private boolean dynamic;
     private boolean bounce;
-    private int gravityMode;
-    private float gravPointX;
-    private float gravPointY;
+    private Gravity gravityMode;
+    private ArrayList<PVector> gravList;
     private float decay;
 
     private int prevWidth;
@@ -143,14 +143,14 @@ public class TriangleManager extends PApplet {
         //  Initial values
         dynamic = false;
         bounce = false;
-        gravityMode = 0;
+        gravityMode = Gravity.OFF;
         decay = 0.99f;
-        gravPointX = width / 2;
-        gravPointY = height / 2;
 
         prevWidth = width;
         prevHeight = height;
 
+        gravList = new ArrayList<>();
+        gravList.add(new PVector(width/2, height/2));
         triangles = new ArrayList<>();
         bulletCount = 0;
         mouseButtons = new boolean[40];
@@ -181,6 +181,8 @@ public class TriangleManager extends PApplet {
      */
 
     public void draw() {
+
+
 
         if (prevWidth != width) {
             cameraX += (width - prevWidth)/2f;
@@ -213,12 +215,19 @@ public class TriangleManager extends PApplet {
         line(0, height - BORDER_WEIGHT/2, width, height - BORDER_WEIGHT/2);
         line(width - BORDER_WEIGHT/2, 0, width - BORDER_WEIGHT/2, height);
 
-        if (gravityMode == 2) {
+        if (gravityMode == Gravity.POINT) {
             //  Draw Gravity Point
             stroke(color(0));
             strokeWeight(2);
             fill(color(0, 0, 100));
-            ellipse(gravPointX, gravPointY, 4, 4);
+            ellipse(gravList.get(0).x, gravList.get(0).y, 4, 4);
+        } else if (gravityMode == Gravity.MULTI_POINT) {
+            stroke(color(0));
+            strokeWeight(2);
+            fill(color(0, 0, 100));
+            for (PVector v : gravList) {
+                ellipse(v.x, v.y, 4, 4);
+            }
         }
 
         //  Draw crosshairs
@@ -326,25 +335,7 @@ public class TriangleManager extends PApplet {
         text(FPSText, 50, 170);
         text("Bounce: " + bounce, 50, 190);
         text("Decay: " + decay, 50, 210);
-        String mode;
-        switch (gravityMode){
-            case 0:
-                mode = "OFF";
-                break;
-            case 1:
-                mode = "MOUSE";
-                break;
-            case 2:
-                mode = "POINT";
-                break;
-            case 3:
-                mode = "MULTI-POINT";
-                break;
-            default:
-                mode = "ERROR";
-                break;
-        }
-        text("Gravity Mode: " + mode, 50, 230);
+        text("Gravity Mode: " + gravityMode, 50, 230);
 
         prevWidth = width;
         prevHeight = height;
@@ -370,28 +361,24 @@ public class TriangleManager extends PApplet {
         }
     }
 
-    float getGravityX() {
-        if (gravityMode == 1) {
-            return mouseX;
-        } else {
-            return gravPointX;
-        }
+    boolean getBounceMode() {
+        return bounce;
     }
 
-    float getGravityY() {
-        if (gravityMode == 1) {
-            return mouseY;
-        } else {
-            return gravPointY;
-        }
-    }
-
-    int getGravityMode() {
+    Gravity getGravityMode() {
         return gravityMode;
     }
 
-    boolean getBounceMode() {
-        return bounce;
+    PVector getGravityPoint() {
+        if (gravityMode == Gravity.SIMPLE || gravityMode == Gravity.TRUE) {
+            return new PVector(mouseX, mouseY);
+        } else {
+            return gravList.get(0);
+        }
+    }
+
+    ArrayList<PVector> getGravityList() {
+        return gravList;
     }
 
     float getBorderWeight() {
@@ -473,7 +460,7 @@ public class TriangleManager extends PApplet {
             bounce = !bounce;
         }
         if (k == 'g') {
-            gravityMode = (gravityMode + 1) % 4;
+            gravityMode = gravityMode.next();
         }
         if (k == 'c') {
             for (Triangle t : triangles) {
@@ -541,8 +528,11 @@ public class TriangleManager extends PApplet {
         mouseButtons[mb] = true;
 
         if (mb == CENTER) {
-            gravPointX = mouseX;
-            gravPointY = mouseY;
+            if (gravityMode != Gravity.MULTI_POINT) {
+                gravList.set(0, new PVector(mouseX, mouseY));
+            } else {
+                gravList.add(new PVector(mouseX, mouseY));
+            }
         }
 
         //  Handle mouse button actions

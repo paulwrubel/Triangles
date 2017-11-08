@@ -2,9 +2,11 @@ package me.paul.triangles;
 
 import processing.core.PApplet;
 import processing.core.PVector;
+import processing.awt.PSurfaceAWT.SmoothCanvas;
 import processing.event.*;
-import processing.sound.*;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -99,9 +101,11 @@ public class TriangleManager extends PApplet {
      */
     private boolean dynamic;
     private boolean bounce;
+    private boolean onControls;
     private Gravity gravityMode;
     private ArrayList<PVector> gravList;
     private float decay;
+    private ControlsBox controls;
 
     private int prevWidth;
     private int prevHeight;
@@ -145,10 +149,12 @@ public class TriangleManager extends PApplet {
         bounce = false;
         gravityMode = Gravity.OFF;
         decay = 0.99f;
+        onControls = true;
 
         prevWidth = width;
         prevHeight = height;
 
+        controls = new ControlsBox(this);
         gravList = new ArrayList<>();
         gravList.add(new PVector(width/2, height/2));
         triangles = new ArrayList<>();
@@ -163,7 +169,6 @@ public class TriangleManager extends PApplet {
 
         //  Can resize window (alpha)
         surface.setResizable(true);
-
 
         //  Hue, Saturation, Brightness, and ranges
         colorMode(HSB, 360, 100, 100);
@@ -182,18 +187,16 @@ public class TriangleManager extends PApplet {
 
     public void draw() {
 
-
-
         if (prevWidth != width) {
-            cameraX += (width - prevWidth)/2f;
+            cameraX += (width - prevWidth) / 2f;
         }
         if (prevHeight != height) {
-            cameraY += (height - prevHeight)/2f;
-            cameraZ += ((height - prevHeight)/2f) / tan(PI*30.0f / 180.0f);
+            cameraY += (height - prevHeight) / 2f;
+            cameraZ += ((height - prevHeight) / 2f) / tan(PI * 30.0f / 180.0f);
         }
 
         //  Fix camera
-        camera(cameraX, cameraY, cameraZ, width/2.0f, height/2.0f, 0f, 0f, 1.0f, 0f);
+        camera(cameraX, cameraY, cameraZ, width / 2.0f, height / 2.0f, 0f, 0f, 1.0f, 0f);
 
         //  Set window title based on current mode
         if (dynamic) {
@@ -210,10 +213,10 @@ public class TriangleManager extends PApplet {
         //  To keep track of original perspective
         stroke(color(0));
         strokeWeight(BORDER_WEIGHT);
-        line(0, 0 + BORDER_WEIGHT/2, width, 0 + BORDER_WEIGHT/2);
-        line(0 + BORDER_WEIGHT/2, 0, 0 + BORDER_WEIGHT/2, height);
-        line(0, height - BORDER_WEIGHT/2, width, height - BORDER_WEIGHT/2);
-        line(width - BORDER_WEIGHT/2, 0, width - BORDER_WEIGHT/2, height);
+        line(0, 0 + BORDER_WEIGHT / 2, width, 0 + BORDER_WEIGHT / 2);
+        line(0 + BORDER_WEIGHT / 2, 0, 0 + BORDER_WEIGHT / 2, height);
+        line(0, height - BORDER_WEIGHT / 2, width, height - BORDER_WEIGHT / 2);
+        line(width - BORDER_WEIGHT / 2, 0, width - BORDER_WEIGHT / 2, height);
 
         if (gravityMode == Gravity.POINT) {
             //  Draw Gravity Point
@@ -231,10 +234,12 @@ public class TriangleManager extends PApplet {
         }
 
         //  Draw crosshairs
-        stroke(color(0, 100, 100));
-        strokeWeight(CROSSHAIRS_WEIGHT);
-        line(mouseX, mouseY-10, mouseX, mouseY+10);
-        line(mouseX-10, mouseY, mouseX+10, mouseY);
+        if (!onControls) {
+            stroke(color(0, 100, 100));
+            strokeWeight(CROSSHAIRS_WEIGHT);
+            line(mouseX, mouseY - 10, mouseX, mouseY + 10);
+            line(mouseX - 10, mouseY, mouseX + 10, mouseY);
+        }
 
         //  Initial values for timing vars
         double triangleTime = -1;
@@ -257,7 +262,7 @@ public class TriangleManager extends PApplet {
 
             }
             end = System.nanoTime();
-            bulletTime = (end - start)/1000000d;
+            bulletTime = (end - start) / 1000000d;
 
             //  Start Timer and operate on Triangles
             //  Simple update and draw execution
@@ -265,7 +270,7 @@ public class TriangleManager extends PApplet {
             t.update();
             t.draw();
             end = System.nanoTime();
-            triangleTime = (end - start)/1000000d;
+            triangleTime = (end - start) / 1000000d;
 
             //  Add to total bullet count
             bulletCount += t.bullets().size();
@@ -280,7 +285,7 @@ public class TriangleManager extends PApplet {
                 handleAdd();
             }
             //  Remove Triangles
-            if (keys[(int)BACKSPACE] && (frameCount % TRIANGLE_REMOVE_FREQ) == 0) {
+            if (keys[(int) BACKSPACE] && (frameCount % TRIANGLE_REMOVE_FREQ) == 0) {
                 if (triangles.size() != 0) {
                     triangles.remove(0);
                 }
@@ -294,51 +299,63 @@ public class TriangleManager extends PApplet {
                 }
             }
             //  Move perspective up
-            if (keys[(int)('i')]) {
+            if (keys[(int) ('i')]) {
                 cameraY -= 10f;
             }
             //  Move perspective left
-            if (keys[(int)('j')]) {
+            if (keys[(int) ('j')]) {
                 cameraX -= 10f;
             }
             //  Move perspective down
-            if (keys[(int)('k')]) {
+            if (keys[(int) ('k')]) {
                 cameraY += 10f;
             }
             //  Move perspective right
-            if (keys[(int)('l')]) {
+            if (keys[(int) ('l')]) {
                 // RIGHT
                 cameraX += 10f;
             }
             //  Move perspective out
-            if (keys[(int)('u')]) {
+            if (keys[(int) ('u')]) {
                 cameraZ += 10f / tan(PI * 30.0f / 180.0f);
             }
             //  Move perspective in
-            if (keys[(int)('o')]) {
+            if (keys[(int) ('o')]) {
                 cameraZ -= 10f / tan(PI * 30.0f / 180.0f);
             }
         }
 
         //  Print basic debug text to screen
         //  Text is written to top left corner of window
-        fill(0);
-        text("X: " + mouseX, 50, 50);
-        text("Y: " + mouseY, 50, 70);
-        text("Triangle Count: " + triangles.size(), 50, 90);
-        text("Bullet Count: " + bulletCount, 50, 110);
-        String triangleText = String.format("Triangle Time: ~%.4fms", triangles.size()*triangleTime);
-        String bulletText = String.format("Bullet Time: ~%.4fms", triangles.size()*bulletTime);
-        String FPSText = String.format("FPS: %d", (int)frameRate);
-        text(triangleText, 50, 130);
-        text(bulletText, 50, 150);
-        text(FPSText, 50, 170);
-        text("Bounce: " + bounce, 50, 190);
-        text("Decay: " + decay, 50, 210);
-        text("Gravity Mode: " + gravityMode, 50, 230);
+        if (!onControls) {
+            textSize(12);
+            fill(0);
+            textMode(SHAPE);
+            textAlign(LEFT);
+
+            text("X: " + mouseX, 50, 50);
+            text("Y: " + mouseY, 50, 70);
+            text("Triangle Count: " + triangles.size(), 50, 90);
+            text("Bullet Count: " + bulletCount, 50, 110);
+            String triangleText = String.format("Triangle Time: ~%.4fms", triangles.size() * triangleTime);
+            String bulletText = String.format("Bullet Time: ~%.4fms", triangles.size() * bulletTime);
+            String FPSText = String.format("FPS: %d", (int) frameRate);
+            text(triangleText, 50, 130);
+            text(bulletText, 50, 150);
+            text(FPSText, 50, 170);
+            text("Bounce: " + bounce, 50, 190);
+            text("Decay: " + decay, 50, 210);
+            text("Gravity Mode: " + gravityMode, 50, 230);
+
+        }
 
         prevWidth = width;
         prevHeight = height;
+
+        if (onControls) {
+            controls.update();
+            controls.draw();
+        }
     }
 
     /**
@@ -399,29 +416,15 @@ public class TriangleManager extends PApplet {
     }
 
     /**
-     * Getter method for keys
-     * @return the keys array
-     */
-
-    boolean[] getKeys() {
-        return keys;
-    }
-
-    /**
-     * Getter method for mouseButtons
-     * @return the mouseButtons array
-     */
-
-    boolean[] getMouseButtons() {
-        return mouseButtons;
-    }
-
-    /**
      * Is called when a key is pressed down.
      * @param event event linked to which key was pressed
      */
 
     public void keyPressed(KeyEvent event) {
+        if (onControls) {
+            return;
+        }
+
         //  Get key data
         char k = event.getKey();
         int kc = event.getKeyCode();
@@ -523,6 +526,11 @@ public class TriangleManager extends PApplet {
 
     public void mousePressed(MouseEvent event) {
         int mb = event.getButton();
+
+        if (onControls) {
+            onControls = false;
+            return;
+        }
 
         //  Set array position to true
         mouseButtons[mb] = true;

@@ -350,8 +350,16 @@ public class TriangleManager extends PApplet {
             text(triangleText, 50, 130);
             text(bulletText, 50, 150);
             text(FPSText, 50, 170);
-            text("Bounce: " + bounce, 50, 190);
-            text("Decay: " + decay, 50, 210);
+            if (bounce) {
+                text("Bounce: ON", 50, 190);
+            } else {
+                text("Bounce: OFF", 50, 190);
+            }
+            if (gravityMode == Gravity.OFF) {
+                text("Decay: OFF", 50, 210);
+            } else {
+                text("Decay: " + decay, 50, 210);
+            }
             text("Gravity Mode: " + gravityMode, 50, 230);
 
         }
@@ -372,8 +380,8 @@ public class TriangleManager extends PApplet {
     private void handleAdd() {
         if (triangles.size() != 0) {
             //  Make sure the mouse is in a different position
-            if (mouseX != triangles.get(triangles.size() - 1).getX() || mouseY != triangles.get(triangles.size() - 1).getY()) {
-                triangles.add(new Triangle(this, mouseX, mouseY));
+            if (mouseX != triangles.get(triangles.size() - 1).getPos().x || mouseY != triangles.get(triangles.size() - 1).getPos().y) {
+                triangles.add(new Triangle(this, new PVector(mouseX, mouseY)));
                 //  Remove oldest
                 if (triangles.size() > TRIANGLE_LIMIT) {
                     triangles.remove(0);
@@ -381,7 +389,7 @@ public class TriangleManager extends PApplet {
             }
         } else {
             //  If brand-new, just add one!
-            triangles.add(new Triangle(this, mouseX, mouseY));
+            triangles.add(new Triangle(this, new PVector(mouseX, mouseY)));
         }
     }
 

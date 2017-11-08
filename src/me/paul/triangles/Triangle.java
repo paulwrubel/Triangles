@@ -39,9 +39,9 @@ class Triangle {
     /**
      * Location and heading of triangles on window
      */
-    private float x;
-    private float y;
-    private float heading;
+    private PVector pos;
+    private PVector mouse;
+    private PVector velocity;
 
     /**
      * bullet list, along with a copy list to remove off-screen bullets
@@ -58,16 +58,15 @@ class Triangle {
      * Constructor for a Triangle object
      *
      * @param manager_ Triangles reference needed to draw to the screen
-     * @param x_       x coordinate location of this triangle
-     * @param y_       y coordinate location of this triangle
+     * @param pos_     coordinate location of this triangle
      */
 
-    Triangle(TriangleManager manager_, float x_, float y_) {
+    Triangle(TriangleManager manager_, PVector pos_) {
 
         manager = manager_;
-
-        x = x_;
-        y = y_;
+        pos = pos_;
+        mouse = new PVector(manager.mouseX, manager.mouseY);
+        velocity = PVector.sub(mouse, pos).normalize();
 
         //  Initialization
         bullets = new ArrayList<>();
@@ -78,23 +77,12 @@ class Triangle {
     }
 
     /**
-     * Getter method for x coordinate
+     * Getter method for coordinate
      *
-     * @return x coordinate location of this triangle
+     * @return coordinate location of this triangle
      */
-    // TODO: Redo with PVector class
-    float getX() {
-        return x;
-    }
-
-    /**
-     * Getter method for y coordinate
-     *
-     * @return y coordinate location of this triangle
-     */
-    // TODO: Redo with PVector class
-    float getY() {
-        return y;
+    PVector getPos() {
+        return pos;
     }
 
     /**
@@ -103,24 +91,24 @@ class Triangle {
      */
     void update() {
 
+        mouse.set(manager.mouseX, manager.mouseY);
+
         //  Perform trigonometric operation to get new location from heading
         //  Applicable if keys are pressed
         if (manager.getKeyCodes()[manager.UP]) {
-            x += MAG * PApplet.sin(heading);
-            y += -MAG * PApplet.cos(heading);
+            pos.add(velocity);
         }
         if (manager.getKeyCodes()[manager.DOWN]) {
-            x += -MAG * PApplet.sin(heading);
-            y += MAG * PApplet.cos(heading);
+            pos.sub(velocity);
         }
         if (manager.getKeyCodes()[manager.LEFT]) {
-            x += MAG * PApplet.cos(heading);
-            y += MAG * PApplet.sin(heading);
+            pos.add(velocity.copy().rotate(PApplet.radians(90)));
         }
         if (manager.getKeyCodes()[manager.RIGHT]) {
-            x += -MAG * PApplet.cos(heading);
-            y += -MAG * PApplet.sin(heading);
+            pos.add(velocity.copy().rotate(PApplet.radians(-90)));
         }
+
+        velocity.set(PVector.sub(mouse, pos).normalize().mult(MAG));
 
         //  Add off-screen bullets to the remove copy list
         for (Bullet b : bullets) {
@@ -132,9 +120,6 @@ class Triangle {
         // Remove bullets from main list and clear copy list
         bullets.removeAll(bulletsToRemove);
         bulletsToRemove.clear();
-
-        // Update heading from private method
-        heading = getAngle();
     }
 
     /**
@@ -143,7 +128,7 @@ class Triangle {
     void draw() {
 
         // Set color and drawing properties
-        float hue = (PApplet.degrees(heading) + 360) % 360;
+        float hue = 180 + PApplet.degrees(velocity.copy().rotate(PApplet.radians(-90)).heading());
         tri.setFill(manager.color(hue, SAT, BRIGHT));
         manager.fill(manager.color(hue, SAT, BRIGHT));
         tri.setStroke(manager.color(0));
@@ -151,15 +136,15 @@ class Triangle {
         tri.setStrokeWeight(STROKE_WEIGHT);
 
         // Move origin to our location and rotate so up is our heading
-        manager.translate(x, y);
-        manager.rotate(heading);
+        manager.translate(pos.x, pos.y);
+        manager.rotate(velocity.copy().rotate(PApplet.radians(90)).heading());
 
         // Draw our preset geometry to screen
         manager.shape(tri);
 
         // Un-rotate and move origin back to reset
-        manager.rotate(-heading);
-        manager.translate(-x, -y);
+        manager.rotate(-velocity.copy().rotate(PApplet.radians(90)).heading());
+        manager.translate(-pos.x, -pos.y);
     }
 
     /**
@@ -167,10 +152,10 @@ class Triangle {
      */
     void addBullet() {
         //  Calculate starting locations
-        PVector pos = new PVector(x + (40 * PApplet.sin(heading)), y - (40 * PApplet.cos(heading)));
+        PVector bulletPos = pos.copy().add(velocity.copy().mult(10));
 
         //  Add to list
-        bullets.add(new Bullet(manager, pos, heading, manager.getBounceMode()));
+        bullets.add(new Bullet(manager, bulletPos, velocity.copy().normalize(), manager.getBounceMode()));
     }
 
     void clearBullets() {
@@ -185,38 +170,4 @@ class Triangle {
     ArrayList<Bullet> bullets() {
         return bullets;
     }
-
-    /**
-     * Calculates this Triangles heading based on its location
-     * relative to the cursor position
-     *
-     * @return This Triangle's most recent heading
-     */
-    // TODO: Redo with PVector class
-    private float getAngle() {
-        // get distances from location to cursor
-        double dx = PApplet.abs(manager.mouseX - x);
-        double dy = PApplet.abs(manager.mouseY - y);
-
-        // Which quadrant is the cursor in relative to us?
-        boolean left = manager.mouseX < x;
-        boolean top = manager.mouseY < y;
-
-        // Choose which atan formula to use based on quadrant
-        float rot;
-        if (manager.mouseX == x && manager.mouseY == y) {
-            rot = 0;
-        } else if (top && !left) {
-            rot = PApplet.atan((float) (dx / dy));
-        } else if (!top && left) {
-            rot = PApplet.atan((float) (dx / dy)) + manager.PI;
-        } else if (top) {
-            rot = PApplet.atan((float) (dy / dx)) - manager.PI / 2;
-        } else {
-            rot = PApplet.atan((float) (dy / dx)) + manager.PI / 2;
-        }
-
-        return rot;
-    }
-
 }

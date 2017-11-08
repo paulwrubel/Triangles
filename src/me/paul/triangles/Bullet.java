@@ -27,7 +27,8 @@ class Bullet {
     private static final float STROKE_WEIGHT = 2;
     private static final float RADIUS = 8;
 
-    private static final float MAG = 10;
+    private static final float MAG = 8;
+    private static final float GRAVITY_CONST = 10000;
 
     private static final float BRIGHT = 85;
 
@@ -43,36 +44,27 @@ class Bullet {
      * Location and heading of this Bullet
      */
     private PVector pos;
-    private float dx;
-    private float dy;
-    private float ddx;
-    private float ddy;
-    private float velocity;
-    private float heading;
+    private PVector velocity;
+    private PVector acceleration;
 
     /**
      * Constructor for a Bullet object
      *
      * @param manager_ Reference to a PApplet class to draw to
      * @param pos_     PVector describing position of this Bullet
-     * @param heading_ heading (in radians) of this Bullet
+     * @param velocity_ heading (in radians) of this Bullet
      */
 
-    Bullet(TriangleManager manager_, PVector pos_, float heading_, boolean bounce_) {
+    Bullet(TriangleManager manager_, PVector pos_, PVector velocity_, boolean bounce_) {
         manager = manager_;
         pos = pos_;
-        heading = heading_;
-
-        dx = MAG * (PApplet.sin(heading));
-        dy = -MAG * (PApplet.cos(heading));
-
-        ddx = 0;
-        ddy = 0;
+        velocity = velocity_.mult(MAG);
+        acceleration = new PVector(0, 0);
 
         markedForDelete = false;
         bounce = bounce_;
 
-        gravity = getDistFromPoint(pos);
+        gravity = 1;
     }
 
     boolean getDeleteStatus() {
@@ -90,99 +82,91 @@ class Bullet {
 
         if (gm == Gravity.OFF) {
 
-            ddx = 0;
-            ddy = 0;
+            acceleration.set(0, 0);
 
         } else if (gm == Gravity.SIMPLE) {
             PVector gravityPoint = manager.getGravityPoint();
 
             gravity = 1;
-            float gravAngle = getAngleFromPoint(gravityPoint);
+            float gravAngle = PVector.sub(gravityPoint, pos).heading();
 
-            ddx = gravity * (PApplet.sin(gravAngle));
-            ddy = -gravity * (PApplet.cos(gravAngle));
+            acceleration.x = (PApplet.cos(gravAngle));
+            acceleration.y = (PApplet.sin(gravAngle));
         } else if (gm == Gravity.MULTI_POINT) {
             ArrayList<PVector> gravForces = new ArrayList<>();
 
             for (PVector v : manager.getGravityList()) {
-                float gravAngle = getAngleFromPoint(v);
-                float gravDist = getDistFromPoint(v);
-                if (getDistFromPoint(v) > 100) {
-                    gravity = 10000 / PApplet.sq(gravDist);
+                float gravAngle = PVector.sub(v, pos).heading();
+                float gravDist = pos.dist(v);
+
+                if (gravDist > PApplet.sqrt(GRAVITY_CONST)) {
+                    gravity = GRAVITY_CONST / PApplet.sq(gravDist);
                 } else {
                     gravity = 1;
                 }
+
                 gravForces.add(new PVector(gravity * (PApplet.sin(gravAngle)), -gravity * (PApplet.cos(gravAngle))));
             }
-            PVector finalForce = new PVector(0, 0);
+            acceleration.set(0, 0);
             for (PVector v : gravForces) {
-                finalForce = finalForce.add(v);
+                acceleration.add(v);
             }
-
-            ddx = finalForce.x;
-            ddy = finalForce.y;
         } else {
             PVector gravityPoint = manager.getGravityPoint();
+            float gravDist = pos.dist(gravityPoint);
 
-            if (getDistFromPoint(gravityPoint) > 100) {
-                gravity = 10000 / PApplet.sq(getDistFromPoint(gravityPoint));
+            if (gravDist > PApplet.sqrt(GRAVITY_CONST)) {
+                gravity = GRAVITY_CONST / PApplet.sq(gravDist);
             } else {
                 gravity = 1;
             }
-            float gravAngle = getAngleFromPoint(gravityPoint);
 
-            ddx = gravity * (PApplet.sin(gravAngle));
-            ddy = -gravity * (PApplet.cos(gravAngle));
+            float gravAngle = PVector.sub(gravityPoint, pos).heading();
+
+            acceleration.set(PApplet.cos(gravAngle), PApplet.sin(gravAngle)).mult(gravity);
         }
 
-        dx += ddx;
-        dy += ddy;
+        velocity.add(acceleration);
 
         if (manager.getGravityMode() != Gravity.OFF) {
-            dx *= manager.getDecay();
-            dy *= manager.getDecay();
+            velocity.mult(manager.getDecay());
         }
-
-        heading = getAngleFromVelocity(dx, dy);
-
-        velocity = PApplet.sqrt(((dx * dx) + (dy * dy)) * ((dx * dx) + (dy * dy)));
 
         //  Update location based on heading
 
-        pos.x += dx;
-        pos.y += dy;
+        pos.add(velocity);
 
         if (bounce) {
             if (pos.x < 0 + RADIUS + manager.getBorderWeight()) {
-                dx *= -1;
+                velocity.x *= -1;
                 pos.x = 0 + RADIUS + manager.getBorderWeight();
             } else if (pos.x > manager.width - RADIUS - manager.getBorderWeight()) {
-                dx *= -1;
+                velocity.x *= -1;
                 pos.x = manager.width - RADIUS - manager.getBorderWeight();
             }
             if (pos.y < 0 + RADIUS + manager.getBorderWeight()) {
-                dy *= -1;
+                velocity.y *= -1;
                 pos.y = 0 + RADIUS + manager.getBorderWeight();
             } else if (pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
-                dy *= -1;
+                velocity.y *= -1;
                 pos.y = manager.height - RADIUS - manager.getBorderWeight();
             }
         } else {
             if (pos.x < 0 + RADIUS + manager.getBorderWeight()) {
-                dx *= -1;
+                velocity.x *= -1;
                 pos.x = 0 + RADIUS + manager.getBorderWeight();
                 markedForDelete = true;
             } else if (pos.x > manager.width - RADIUS - manager.getBorderWeight()) {
-                dx *= -1;
+                velocity.x *= -1;
                 pos.x = manager.width - RADIUS - manager.getBorderWeight();
                 markedForDelete = true;
             }
             if (pos.y < 0 + RADIUS + manager.getBorderWeight()) {
-                dy *= -1;
+                velocity.y *= -1;
                 pos.y = 0 + RADIUS + manager.getBorderWeight();
                 markedForDelete = true;
             } else if (pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
-                dy *= -1;
+                velocity.y *= -1;
                 pos.y = manager.height - RADIUS - manager.getBorderWeight();
                 markedForDelete = true;
             }
@@ -197,8 +181,8 @@ class Bullet {
     void draw() {
         // Decide of color for Bullet, or if hollow
         if (FILL) {
-            float hue = (PApplet.degrees(heading) + 360) % 360;
-            float sat = PApplet.map(velocity, 0, 100, 10, 10000);
+            float hue = 180 + PApplet.degrees(velocity.copy().rotate(PApplet.radians(-90)).heading());
+            float sat = PApplet.map(velocity.mag(), 0, 50, 10, 10000);
             sat = PApplet.sqrt(sat);
             manager.fill(manager.color(hue, sat, BRIGHT));
         } else {
@@ -218,79 +202,6 @@ class Bullet {
         //  No need for rotation as we are simple drawing a circle
         manager.ellipse(pos.x, pos.y, RADIUS, RADIUS);
 
-    }
-
-    // TODO: Redo with PVector class
-    private float getAngleFromVelocity(float dx, float dy) {
-
-        // Which quadrant is the cursor in relative to us?
-        boolean left = dx < 0;
-        boolean top = dy < 0;
-
-        // Choose which atan formula to use based on quadrant
-        float rot = PApplet.degrees(PApplet.atan((dx / dy)));
-        float trueRotation;
-
-        if (dx == 0 && dy == 0) {
-            trueRotation = 0;
-        } else if (top && !left) {
-            //  Top Right
-            trueRotation = PApplet.map(rot, 0, -90, 0, 90);
-        } else if (!top && !left) {
-            //  Bottom Right
-            trueRotation = PApplet.map(rot, 90, 0, 90, 180);
-        } else if (!top) {
-            //  Bottom Left
-            trueRotation = PApplet.map(rot, 0, -90, 180, 270);
-        } else {
-            //  Top Left
-            trueRotation = PApplet.map(rot, 90, 0, 270, 360);
-        }
-
-        return PApplet.radians(trueRotation);
-    }
-
-    // TODO: Redo with PVector class
-    private float getAngleFromPoint(PVector v) {
-        // get distances from location to cursor
-        float dx = PApplet.abs(v.x - pos.x);
-        float dy = PApplet.abs(v.y - pos.y);
-
-        // Which quadrant is the cursor in relative to us?
-        boolean left = v.x < pos.x;
-        boolean top = v.y < pos.y;
-
-        // Choose which atan formula to use based on quadrant
-        float rot = PApplet.degrees(PApplet.atan((dx / dy)));
-        float trueRotation;
-
-        if (dx == 0 && dy == 0) {
-            trueRotation = 0;
-        } else if (top && !left) {
-            //  Top Right
-            trueRotation = PApplet.map(rot, 0, 90, 0, 90);
-        } else if (!top && !left) {
-            //  Bottom Right
-            trueRotation = PApplet.map(rot, 90, 0, 90, 180);
-        } else if (!top) {
-            //  Bottom Left
-            trueRotation = PApplet.map(rot, 0, 90, 180, 270);
-        } else {
-            //  Top Left
-            trueRotation = PApplet.map(rot, 90, 0, 270, 360);
-        }
-
-        return PApplet.radians(trueRotation);
-    }
-
-    // TODO: Redo with PVector class
-    private float getDistFromPoint(PVector v) {
-        float dx = PApplet.abs(v.x - pos.x);
-        float dy = PApplet.abs(v.y - pos.y);
-
-        float result = dx * dx + dy * dy;
-
-        return PApplet.sqrt(result);
     }
 
 }

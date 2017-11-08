@@ -1,6 +1,6 @@
 # Triangles
 ---
-A fun processing project about triangles that shoot bullets
+A fun processing project about Triangles that shoot Bullets
 
 Supported by [processing](https://processing.org/) libraries.
 
@@ -8,7 +8,7 @@ Supported by [processing](https://processing.org/) libraries.
 
 @author [Paul Wrubel (VoxaelFox)](https://github.com/paulwrubel)
 
-##### Features
+### Features
 - Triangles aim at mouse
 - Triangles can move toward, away from, and orbit the mouse
 - Trianges can shoot bullets.

@@ -66,14 +66,14 @@ class Triangle {
         manager = manager_;
         pos = pos_;
         mouse = new PVector(manager.mouseX, manager.mouseY);
-        velocity = PVector.sub(mouse, pos).normalize();
+        velocity = new PVector(0, -1).mult(MAG);
 
         //  Initialization
         bullets = new ArrayList<>();
         bulletsToRemove = new ArrayList<>();
 
         // Create framework for triangle geometry
-        tri = manager.createShape(PConstants.TRIANGLE, 0, -45, -30f, 36f, 30f, 36f);
+        tri = manager.createShape(manager.TRIANGLE, 0, -45, -30f, 36f, 30f, 36f);
     }
 
     /**
@@ -93,22 +93,37 @@ class Triangle {
 
         mouse.set(manager.mouseX, manager.mouseY);
 
+        System.out.println("VELOCITY - 1: " + velocity.toString() + ", MAG: " + velocity.mag());
+        System.out.println("POSITION - 1: " + pos.toString() + ", MAG: " + pos.mag());
+
         //  Perform trigonometric operation to get new location from heading
         //  Applicable if keys are pressed
-        if (manager.getKeyCodes()[manager.UP]) {
-            pos.add(velocity);
-        }
-        if (manager.getKeyCodes()[manager.DOWN]) {
-            pos.sub(velocity);
-        }
-        if (manager.getKeyCodes()[manager.LEFT]) {
-            pos.add(velocity.copy().rotate(PApplet.radians(90)));
-        }
-        if (manager.getKeyCodes()[manager.RIGHT]) {
-            pos.add(velocity.copy().rotate(PApplet.radians(-90)));
+        if (pos.dist(mouse) > velocity.mag()/2) {
+
+            if (manager.getKeyCodes()[manager.LEFT]) {
+                pos.add(velocity.copy().rotate(-PApplet.acos(velocity.mag() / (2 * PVector.dist(pos, mouse)))));
+            }
+            if (manager.getKeyCodes()[manager.RIGHT]) {
+                pos.add(velocity.copy().rotate(PApplet.acos(velocity.mag() / (2 * PVector.dist(pos, mouse)))));
+            }
+            if (manager.getKeyCodes()[manager.UP]) {
+                pos.add(velocity);
+            }
+            if (manager.getKeyCodes()[manager.DOWN]) {
+                pos.sub(velocity);
+            }
+
+            if (pos.dist(mouse) > 0) {
+                velocity.set(PVector.sub(mouse, pos).normalize().mult(MAG));
+            } else {
+                velocity.set(0, -1).mult(MAG);
+            }
+        } else {
+            velocity.set(0, -1).mult(MAG);
         }
 
-        velocity.set(PVector.sub(mouse, pos).normalize().mult(MAG));
+        System.out.println("VELOCITY - 2: " + velocity.toString() + ", MAG: " + velocity.mag());
+        System.out.println("POSITION - 2: " + pos.toString() + ", MAG: " + pos.mag());
 
         //  Add off-screen bullets to the remove copy list
         for (Bullet b : bullets) {

@@ -25,7 +25,7 @@ class Bullet {
     private static final boolean FILL = true;
     private static final boolean STROKE = true;
     private static final float STROKE_WEIGHT = 2;
-    private static final float RADIUS = 8;
+    private static final float RADIUS = 10;
 
     private static final float MAG = 8;
     private static final float GRAVITY_CONST = 10000;
@@ -50,8 +50,8 @@ class Bullet {
     /**
      * Constructor for a Bullet object
      *
-     * @param manager_ Reference to a PApplet class to draw to
-     * @param pos_     PVector describing position of this Bullet
+     * @param manager_  Reference to a PApplet class to draw to
+     * @param pos_      PVector describing position of this Bullet
      * @param velocity_ heading (in radians) of this Bullet
      */
 
@@ -86,17 +86,14 @@ class Bullet {
 
         } else if (gm == Gravity.SIMPLE) {
             PVector gravityPoint = manager.getGravityPoint();
-
             gravity = 1;
-            float gravAngle = PVector.sub(gravityPoint, pos).heading();
 
-            acceleration.x = (PApplet.cos(gravAngle));
-            acceleration.y = (PApplet.sin(gravAngle));
+            acceleration.set(PVector.sub(gravityPoint, pos).setMag(gravity));
+
         } else if (gm == Gravity.MULTI_POINT) {
             ArrayList<PVector> gravForces = new ArrayList<>();
 
             for (PVector v : manager.getGravityList()) {
-                float gravAngle = PVector.sub(v, pos).heading();
                 float gravDist = pos.dist(v);
 
                 if (gravDist > PApplet.sqrt(GRAVITY_CONST)) {
@@ -105,8 +102,9 @@ class Bullet {
                     gravity = 1;
                 }
 
-                gravForces.add(new PVector(gravity * (PApplet.sin(gravAngle)), -gravity * (PApplet.cos(gravAngle))));
+                gravForces.add(PVector.sub(v, pos).setMag(gravity));
             }
+            
             acceleration.set(0, 0);
             for (PVector v : gravForces) {
                 acceleration.add(v);
@@ -121,9 +119,7 @@ class Bullet {
                 gravity = 1;
             }
 
-            float gravAngle = PVector.sub(gravityPoint, pos).heading();
-
-            acceleration.set(PApplet.cos(gravAngle), PApplet.sin(gravAngle)).mult(gravity);
+            acceleration.set(PVector.sub(gravityPoint, pos).setMag(gravity));
         }
 
         velocity.add(acceleration);

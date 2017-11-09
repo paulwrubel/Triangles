@@ -25,8 +25,8 @@ Supported by [processing](https://processing.org/) libraries.
 | *Center Click*   | Set gravity point | Valid in all gravity modes
 | *Up Arrow*       | Move all Triangles towards cursor | Can be held
 | *Down Arrow*     | Move all Triangles away from cursor | Can be held
-| *Left Arrow*     | All Triangles orbit cursor anti-clockwise | Can be held
-| *Right Arrow*    | All Triangles orbit cursor clockwise | Can be held
+| *Left Arrow*     | All Triangles orbit cursor clockwise | Can be held
+| *Right Arrow*    | All Triangles orbit cursor anti-clockwise | Can be held
 | *i*              | Change perspective up | Can be held in Dynamic mode / blocky in Static mode
 | *k*              | Change perspective down | Can be held in Dynamic mode / blocky in Static mode
 | *j*              | Change perspective left | Can be held in Dynamic mode / blocky in Static mode

@@ -72,10 +72,6 @@ class Bullet {
         circ = manager.createShape(manager.ELLIPSE, 0, 0, RADIUS, RADIUS);
     }
 
-    boolean getDeleteStatus() {
-        return markedForDelete;
-    }
-
     /**
      * Updates information and properties about this Bullet object
      * like it's location and color
@@ -191,11 +187,21 @@ class Bullet {
             manager.noFill();
         }
         //  No need for rotation as we are simple drawing a circle
-        //circ.disableStyle();
-        //circ.enableStyle();
         manager.shape(circ, pos.x, pos.y);
         //manager.ellipse(pos.x, pos.y, RADIUS, RADIUS);
 
+    }
+
+    boolean getDeleteStatus() {
+        return markedForDelete;
+    }
+
+    PShape getShape() {
+        return circ;
+    }
+
+    PVector getPos () {
+        return pos;
     }
 
 }

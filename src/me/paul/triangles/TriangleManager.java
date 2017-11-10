@@ -80,7 +80,7 @@ public class TriangleManager extends PApplet {
      * Ranges from 0 - INF
      */
     private static final int TRIANGLE_LIMIT = 500;
-    private static final int BULLET_LIMIT = 10000;
+    private static final int BULLET_LIMIT = 1500;
 
     /**
      * Frequency of the creation (and removal) of Triangles and Bullets in dynamic mode
@@ -137,13 +137,6 @@ public class TriangleManager extends PApplet {
      * Called once, for initialization purposes. Nothing is drawn here
      */
     public void setup() {
-
-        hint(ENABLE_STROKE_PERSPECTIVE);
-        //hint(ENABLE_DEPTH_TEST);
-        hint(DISABLE_DEPTH_TEST);
-        //hint(DISABLE_DEPTH_SORT);
-        //hint(DISABLE_DEPTH_MASK);
-
         frameRate(60);
 
         //  Initial values

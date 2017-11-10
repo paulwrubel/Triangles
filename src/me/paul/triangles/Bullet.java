@@ -1,6 +1,7 @@
 package me.paul.triangles;
 
 import processing.core.PApplet;
+import processing.core.PShape;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ class Bullet {
     private PVector velocity;
     private PVector acceleration;
 
+    private PShape circ;
+
     /**
      * Constructor for a Bullet object
      *
@@ -65,6 +68,8 @@ class Bullet {
         bounce = bounce_;
 
         gravity = 1;
+
+        circ = manager.createShape(manager.ELLIPSE, 0, 0, RADIUS, RADIUS);
     }
 
     boolean getDeleteStatus() {
@@ -104,7 +109,7 @@ class Bullet {
 
                 gravForces.add(PVector.sub(v, pos).setMag(gravity));
             }
-            
+
             acceleration.set(0, 0);
             for (PVector v : gravForces) {
                 acceleration.add(v);
@@ -148,27 +153,17 @@ class Bullet {
                 pos.y = manager.height - RADIUS - manager.getBorderWeight();
             }
         } else {
-            if (pos.x < 0 + RADIUS + manager.getBorderWeight()) {
-                velocity.x *= -1;
-                pos.x = 0 + RADIUS + manager.getBorderWeight();
+            if (pos.x < 0 - RADIUS) {
                 markedForDelete = true;
-            } else if (pos.x > manager.width - RADIUS - manager.getBorderWeight()) {
-                velocity.x *= -1;
-                pos.x = manager.width - RADIUS - manager.getBorderWeight();
+            } else if (pos.x > manager.width + RADIUS) {
                 markedForDelete = true;
             }
-            if (pos.y < 0 + RADIUS + manager.getBorderWeight()) {
-                velocity.y *= -1;
-                pos.y = 0 + RADIUS + manager.getBorderWeight();
+            if (pos.y < 0 - RADIUS) {
                 markedForDelete = true;
-            } else if (pos.y > manager.height - RADIUS - manager.getBorderWeight()) {
-                velocity.y *= -1;
-                pos.y = manager.height - RADIUS - manager.getBorderWeight();
+            } else if (pos.y > manager.height + RADIUS) {
                 markedForDelete = true;
             }
         }
-
-
     }
 
     /**
@@ -176,26 +171,29 @@ class Bullet {
      */
     void draw() {
         // Decide of color for Bullet, or if hollow
-        if (FILL) {
-            float hue = 180 + PApplet.degrees(velocity.copy().rotate(PApplet.radians(-90)).heading());
-            float sat = PApplet.map(velocity.mag(), 0, 50, 10, 10000);
-            sat = PApplet.sqrt(sat);
-            manager.fill(manager.color(hue, sat, BRIGHT));
-        } else {
-            manager.noFill();
-        }
-
         if (STROKE) {
+            circ.setStrokeWeight(STROKE_WEIGHT);
             manager.strokeWeight(STROKE_WEIGHT);
-            manager.stroke(manager.color(0));
+            circ.setStroke(manager.color(0, 0, 0));
+            manager.stroke(manager.color(0, 0, 0));
         } else {
+            circ.noStroke();
             manager.noStroke();
         }
 
-        //  Set basic drawing properties
-
-
+        if (FILL) {
+            float hue = 180 + PApplet.degrees(velocity.copy().rotate(PApplet.radians(-90)).heading());
+            float sat = PApplet.sqrt(PApplet.map(velocity.mag(), 0, 50, 10, 10000));
+            circ.setFill(manager.color(hue, sat, BRIGHT));
+            manager.fill(manager.color(hue, sat, BRIGHT));
+        } else {
+            circ.noFill();
+            manager.noFill();
+        }
         //  No need for rotation as we are simple drawing a circle
+        //circ.disableStyle();
+        //circ.enableStyle();
+        //manager.shape(circ, pos.x, pos.y);
         manager.ellipse(pos.x, pos.y, RADIUS, RADIUS);
 
     }

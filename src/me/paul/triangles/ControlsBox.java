@@ -103,11 +103,11 @@ class ControlsBox {
         yLoc += textSize + 10;
         manager.text("o:", xLoc, yLoc);
         yLoc += textSize + 10;
+        manager.text("r:", xLoc, yLoc);
+        yLoc += textSize + 10;
         manager.text("c:", xLoc, yLoc);
         yLoc += textSize + 10;
         manager.text("b:", xLoc, yLoc);
-        yLoc += textSize + 10;
-        manager.text("d:", xLoc, yLoc);
         yLoc += textSize + 10;
     }
 }

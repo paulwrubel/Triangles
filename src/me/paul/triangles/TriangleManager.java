@@ -148,8 +148,13 @@ public class TriangleManager extends PApplet {
      */
     public void setup() {
 
-        hint(DISABLE_DEPTH_TEST);
         hint(ENABLE_STROKE_PERSPECTIVE);
+        //hint(ENABLE_DEPTH_TEST);
+        hint(DISABLE_DEPTH_TEST);
+        //hint(DISABLE_DEPTH_SORT);
+        //hint(DISABLE_DEPTH_MASK);
+
+        frameRate(60);
 
         //  Initial values
         dynamic = false;
@@ -160,7 +165,6 @@ public class TriangleManager extends PApplet {
 
         prevWidth = width;
         prevHeight = height;
-
         controls = new ControlsBox(this);
         gravList = new ArrayList<>();
         gravList.add(new PVector(width / 2, height / 2));
@@ -176,13 +180,14 @@ public class TriangleManager extends PApplet {
 
         //  Can resize window (alpha)
         surface.setResizable(true);
+        surface.setLocation((displayWidth - width) / 2, (displayHeight - height) / 2);
 
         //  Hue, Saturation, Brightness, and ranges
-        colorMode(HSB, 360, 100, 100);
+        colorMode(HSB, 360, 100, 100, 100);
         //  Ellipses are drawn from centre and distances are radii
         ellipseMode(RADIUS);
         //  Background begins black
-        background(color(0));
+        background(color(0, 0, 0));
         //  To avoid rendering artifacts from 3D mode
         //  Essentially tells renderer to just ignore z-dimension
     }
@@ -214,29 +219,51 @@ public class TriangleManager extends PApplet {
 
         //  Set hue based on horizontal mouse position
         float hue = map(mouseX, 0, width, 0, 360);
-        background(hue, SAT, BRIGHT);
+        background(hue, SAT, BRIGHT, 100);
 
-        //  Draw border around effective "window"
-        //  To keep track of original perspective
-        stroke(color(0));
-        strokeWeight(BORDER_WEIGHT);
-        line(0, 0 + BORDER_WEIGHT / 2, width, 0 + BORDER_WEIGHT / 2);
-        line(0 + BORDER_WEIGHT / 2, 0, 0 + BORDER_WEIGHT / 2, height);
-        line(0, height - BORDER_WEIGHT / 2, width, height - BORDER_WEIGHT / 2);
-        line(width - BORDER_WEIGHT / 2, 0, width - BORDER_WEIGHT / 2, height);
+        //  Draw border around effective "window", if bounce is set
+        //  to show the bouncing "walls"
+        if (bounce) {
+            fill(color(0, 0, 0));
+            noStroke();
+            rectMode(CORNER);
+            //  Top Border
+            rect(0, 0, width, BORDER_WEIGHT);
+            //  Left Border
+            rect(0, 0, BORDER_WEIGHT, height);
+            //  Bottom Border
+            rect(0, height - BORDER_WEIGHT, width, BORDER_WEIGHT);
+            //  Right Border
+            rect(width - BORDER_WEIGHT, 0, BORDER_WEIGHT, height);
+        }
 
+        //  Draw red border signifying outer bullet perimeter
+        //  and frame border
+        fill(color(0, 100, 100));
+        noStroke();
+        rectMode(CORNER);
+        //  Top Border
+        rect(0 - BORDER_WEIGHT, 0 - BORDER_WEIGHT, width + BORDER_WEIGHT * 2, BORDER_WEIGHT);
+        //  Left Border
+        rect(0 - BORDER_WEIGHT, 0 - BORDER_WEIGHT, BORDER_WEIGHT, height + BORDER_WEIGHT * 2);
+        //  Bottom Border
+        rect(0 - BORDER_WEIGHT, height, width + BORDER_WEIGHT * 2, BORDER_WEIGHT);
+        //  Right Border
+        rect(width, 0 - BORDER_WEIGHT, BORDER_WEIGHT, height + BORDER_WEIGHT * 2);
+
+        stroke(color(0, 0, 0));
         if (gravityMode == Gravity.POINT) {
             //  Draw Gravity Point
-            stroke(color(0));
+            stroke(color(0, 0, 0));
             strokeWeight(2);
             fill(color(0, 0, 100));
             ellipse(gravList.get(0).x, gravList.get(0).y, 4, 4);
         } else if (gravityMode == Gravity.MULTI_POINT) {
-            stroke(color(0));
+            stroke(color(0, 0, 0));
             strokeWeight(2);
             fill(color(0, 0, 100));
             for (PVector v : gravList) {
-                ellipse(v.x, v.y, 4, 4);
+                ellipse(v.x, v.y, 40, 40);
             }
         }
 
@@ -249,12 +276,53 @@ public class TriangleManager extends PApplet {
         }
 
         //  Initial values for timing vars
-        double triangleTime = -1;
-        double bulletTime = -1;
+        double triangleTime;
+        double bulletUpdateTime ;
+        double bulletDrawTime;
         long start;
         long end;
 
         bulletCount = 0;
+
+        start = System.nanoTime();
+        for (Triangle t : triangles) {
+
+            for (Bullet b : t.bullets()) {
+
+                b.update();
+                //b.draw();
+
+            }
+        }
+        end = System.nanoTime();
+        bulletUpdateTime = (end - start) / 1000000d / triangles.size();
+
+        start = System.nanoTime();
+        for (Triangle t : triangles) {
+
+            for (Bullet b : t.bullets()) {
+
+                //b.update();
+                b.draw();
+
+            }
+
+        }
+        end = System.nanoTime();
+        bulletDrawTime = (end - start) / 1000000d / triangles.size();
+
+        start = System.nanoTime();
+        for (Triangle t : triangles) {
+
+            t.update();
+            t.draw();
+
+            bulletCount += t.bullets().size();
+        }
+        end = System.nanoTime();
+        triangleTime = (end - start) / 1000000d / triangles.size();
+
+        /*
 
         //  Iterate over Triangle List
         for (Triangle t : triangles) {
@@ -263,13 +331,18 @@ public class TriangleManager extends PApplet {
             //  Iterates over all bullets created and managed by a Triangle
             start = System.nanoTime();
             for (Bullet b : t.bullets()) {
-
                 b.update();
-                b.draw();
-
+                //b.draw();
             }
             end = System.nanoTime();
-            bulletTime = (end - start) / 1000000d;
+            bulletUpdateTime = (end - start) / 1000000d;
+            start = System.nanoTime();
+            for (Bullet b : t.bullets()) {
+                //b.update();
+                b.draw();
+            }
+            end = System.nanoTime();
+            bulletDrawTime = (end - start) / 1000000d;
 
             //  Start Timer and operate on Triangles
             //  Simple update and draw execution
@@ -283,6 +356,8 @@ public class TriangleManager extends PApplet {
             bulletCount += t.bullets().size();
 
         }
+
+        */
 
         //  Only if in dynamic mode
         //  Check for mouse buttons and key presses and perform actions accordingly
@@ -340,27 +415,40 @@ public class TriangleManager extends PApplet {
             textMode(SHAPE);
             textAlign(LEFT);
 
-            text("X: " + mouseX, 50, 50);
-            text("Y: " + mouseY, 50, 70);
-            text("Triangle Count: " + triangles.size(), 50, 90);
-            text("Bullet Count: " + bulletCount, 50, 110);
-            String triangleText = String.format("Triangle Time: ~%.4fms", triangles.size() * triangleTime);
-            String bulletText = String.format("Bullet Time: ~%.4fms", triangles.size() * bulletTime);
+            float yLoc = 50;
+            text("X: " + mouseX, 50, yLoc);
+            yLoc += 20;
+            text("Y: " + mouseY, 50, yLoc);
+            yLoc += 20;
+            text("Triangle Count: " + triangles.size(), 50, yLoc);
+            yLoc += 20;
+            text("Bullet Count: " + bulletCount, 50, yLoc);
+            yLoc += 20;
+            String triangleText = String.format("Triangle Time: ~%.4fms", triangleTime);
+            String bulletUpdateText = String.format("Bullet Update Time: ~%.4fms", bulletUpdateTime);
+            String bulletDrawText = String.format("Bullet Draw Time: ~%.4fms", bulletDrawTime);
             String FPSText = String.format("FPS: %d", (int) frameRate);
-            text(triangleText, 50, 130);
-            text(bulletText, 50, 150);
-            text(FPSText, 50, 170);
+            text(triangleText, 50, yLoc);
+            yLoc += 20;
+            text(bulletUpdateText, 50, yLoc);
+            yLoc += 20;
+            text(bulletDrawText, 50, yLoc);
+            yLoc += 20;
+            text(FPSText, 50, yLoc);
+            yLoc += 20;
             if (bounce) {
-                text("Bounce: ON", 50, 190);
+                text("Bounce: ON", 50, yLoc);
             } else {
-                text("Bounce: OFF", 50, 190);
+                text("Bounce: OFF", 50, yLoc);
             }
+            yLoc += 20;
             if (gravityMode == Gravity.OFF) {
-                text("Decay: OFF", 50, 210);
+                text("Decay: OFF", 50, yLoc);
             } else {
-                text("Decay: " + decay, 50, 210);
+                text("Decay: " + decay, 50, yLoc);
             }
-            text("Gravity Mode: " + gravityMode, 50, 230);
+            yLoc += 20;
+            text("Gravity Mode: " + gravityMode, 50, yLoc);
 
         }
 
@@ -452,10 +540,12 @@ public class TriangleManager extends PApplet {
             keyCodes[kc] = true;
         }
 
-
         // Handle key data
-        if (kc == ENTER) {
+        if (k == ENTER) {
             dynamic = !dynamic;
+        }
+        if (k == 'h') {
+            onControls = true;
         }
         if (k == 'r') {
             cameraX = width / 2.0f;
@@ -479,13 +569,25 @@ public class TriangleManager extends PApplet {
         if (k == 'b') {
             bounce = !bounce;
         }
-        if (k == 'g') {
-            gravityMode = gravityMode.next();
-        }
         if (k == 'c') {
             for (Triangle t : triangles) {
                 t.clearBullets();
             }
+        }
+        if (k == '1') {
+            gravityMode = Gravity.OFF;
+        }
+        if (k == '2') {
+            gravityMode = Gravity.SIMPLE;
+        }
+        if (k == '3') {
+            gravityMode = Gravity.TRUE;
+        }
+        if (k == '4') {
+            gravityMode = Gravity.POINT;
+        }
+        if (k == '5') {
+            gravityMode = Gravity.MULTI_POINT;
         }
         if (!dynamic) {
             if (k == 'i') {

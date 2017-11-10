@@ -93,9 +93,6 @@ class Triangle {
 
         mouse.set(manager.mouseX, manager.mouseY);
 
-        System.out.println("VELOCITY - 1: " + velocity.toString() + ", MAG: " + velocity.mag());
-        System.out.println("POSITION - 1: " + pos.toString() + ", MAG: " + pos.mag());
-
         //  Perform trigonometric operation to get new location from heading
         //  Applicable if keys are pressed
         if (pos.dist(mouse) > velocity.mag()/2) {
@@ -122,9 +119,6 @@ class Triangle {
             velocity.set(0, -1).mult(MAG);
         }
 
-        System.out.println("VELOCITY - 2: " + velocity.toString() + ", MAG: " + velocity.mag());
-        System.out.println("POSITION - 2: " + pos.toString() + ", MAG: " + pos.mag());
-
         //  Add off-screen bullets to the remove copy list
         for (Bullet b : bullets) {
             if (b.getDeleteStatus()) {
@@ -146,8 +140,8 @@ class Triangle {
         float hue = 180 + PApplet.degrees(velocity.copy().rotate(PApplet.radians(-90)).heading());
         tri.setFill(manager.color(hue, SAT, BRIGHT));
         manager.fill(manager.color(hue, SAT, BRIGHT));
-        tri.setStroke(manager.color(0));
-        manager.stroke(manager.color(0));
+        tri.setStroke(manager.color(0, 0, 0));
+        manager.stroke(manager.color(0, 0, 0));
         tri.setStrokeWeight(STROKE_WEIGHT);
 
         // Move origin to our location and rotate so up is our heading

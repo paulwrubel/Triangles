@@ -109,16 +109,6 @@ public class TriangleManager extends PApplet {
     private float decay;
     private ControlsBox controls;
 
-    private int prevWidth;
-    private int prevHeight;
-
-    /**
-     * Saves camera state for changing perspective
-     */
-    private float cameraX;
-    private float cameraY;
-    private float cameraZ;
-
     /**
      * References to all on-screen Triangles
      */
@@ -139,7 +129,7 @@ public class TriangleManager extends PApplet {
      * Otherwise there is big lag!
      */
     public void settings() {
-        size(WINDOW_WIDTH, WINDOW_HEIGHT, P3D);
+        size(WINDOW_WIDTH, WINDOW_HEIGHT, P2D);
         smooth(8);
     }
 
@@ -163,8 +153,6 @@ public class TriangleManager extends PApplet {
         decay = 0.99f;
         onControls = true;
 
-        prevWidth = width;
-        prevHeight = height;
         controls = new ControlsBox(this);
         gravList = new ArrayList<>();
         gravList.add(new PVector(width / 2, height / 2));
@@ -173,10 +161,6 @@ public class TriangleManager extends PApplet {
         mouseButtons = new boolean[40];
         keys = new boolean[128];
         keyCodes = new boolean[41];
-
-        cameraX = width / 2.0f;
-        cameraY = height / 2.0f;
-        cameraZ = (height / 2.0f) / tan(PI * 30.0f / 180.0f);
 
         //  Can resize window (alpha)
         surface.setResizable(true);
@@ -198,17 +182,6 @@ public class TriangleManager extends PApplet {
      */
 
     public void draw() {
-
-        if (prevWidth != width) {
-            cameraX += (width - prevWidth) / 2f;
-        }
-        if (prevHeight != height) {
-            cameraY += (height - prevHeight) / 2f;
-            cameraZ += ((height - prevHeight) / 2f) / tan(PI * 30.0f / 180.0f);
-        }
-
-        //  Fix camera
-        camera(cameraX, cameraY, cameraZ, width / 2.0f, height / 2.0f, 0f, 0f, 1.0f, 0f);
 
         //  Set window title based on current mode
         if (dynamic) {
@@ -380,31 +353,6 @@ public class TriangleManager extends PApplet {
                     }
                 }
             }
-            //  Move perspective up
-            if (keys[(int) ('i')]) {
-                cameraY -= 10f;
-            }
-            //  Move perspective left
-            if (keys[(int) ('j')]) {
-                cameraX -= 10f;
-            }
-            //  Move perspective down
-            if (keys[(int) ('k')]) {
-                cameraY += 10f;
-            }
-            //  Move perspective right
-            if (keys[(int) ('l')]) {
-                // RIGHT
-                cameraX += 10f;
-            }
-            //  Move perspective out
-            if (keys[(int) ('u')]) {
-                cameraZ += 10f / tan(PI * 30.0f / 180.0f);
-            }
-            //  Move perspective in
-            if (keys[(int) ('o')]) {
-                cameraZ -= 10f / tan(PI * 30.0f / 180.0f);
-            }
         }
 
         //  Print basic debug text to screen
@@ -451,9 +399,6 @@ public class TriangleManager extends PApplet {
             text("Gravity Mode: " + gravityMode, 50, yLoc);
 
         }
-
-        prevWidth = width;
-        prevHeight = height;
 
         if (onControls) {
             controls.update();
@@ -547,22 +492,6 @@ public class TriangleManager extends PApplet {
         if (k == 'h') {
             onControls = true;
         }
-        if (k == 'r') {
-            cameraX = width / 2.0f;
-            cameraY = height / 2.0f;
-            cameraZ = (height / 2.0f) / tan(PI * 30.0f / 180.0f);
-            //  Defaults:
-            //
-            //  camera(
-            //      width/2.0,
-            //      height/2.0,
-            //      (height/2.0) / tan(PI*30.0 / 180.0),
-            //      width/2.0, height/2.0,
-            //      0,
-            //      0,
-            //      1,
-            //      0)
-        }
         if (k == ' ') {
             triangles.clear();
         }
@@ -590,30 +519,6 @@ public class TriangleManager extends PApplet {
             gravityMode = Gravity.MULTI_POINT;
         }
         if (!dynamic) {
-            if (k == 'i') {
-                // UP
-                cameraY -= height / 2.0f;
-            }
-            if (k == 'j') {
-                // LEFT
-                cameraX -= width / 2.0f;
-            }
-            if (k == 'k') {
-                // DOWN
-                cameraY += height / 2.0f;
-            }
-            if (k == 'l') {
-                // RIGHT
-                cameraX += width / 2.0f;
-            }
-            if (k == 'u') {
-                // OUT
-                cameraZ += (height / 2.0) / tan(PI * 30.0f / 180.0f);
-            }
-            if (k == 'o') {
-                // IN
-                cameraZ -= (height / 2.0) / tan(PI * 30.0f / 180.0f);
-            }
             if (k == BACKSPACE) {
                 if (triangles.size() != 0) {
                     triangles.remove(0);

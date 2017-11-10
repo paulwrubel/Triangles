@@ -193,8 +193,8 @@ class Bullet {
         //  No need for rotation as we are simple drawing a circle
         //circ.disableStyle();
         //circ.enableStyle();
-        //manager.shape(circ, pos.x, pos.y);
-        manager.ellipse(pos.x, pos.y, RADIUS, RADIUS);
+        manager.shape(circ, pos.x, pos.y);
+        //manager.ellipse(pos.x, pos.y, RADIUS, RADIUS);
 
     }
 
